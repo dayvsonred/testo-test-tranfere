@@ -468,9 +468,47 @@ End Class
 
 
 
+Public Function BuscaParametrizacaoLastro(ByVal CdEmpresa As String,
+                                           ByVal DtMovimento As Date,
+                                           ByVal Sistorigem As String) As List(Of ParametrizacaoPapeisLastro)
+    Dim vResultado As New List(Of ParametrizacaoPapeisLastro)()
+
+    Try
+        Using conexao As New SqlConnection("SuaStringDeConexão")
+            conexao.Open()
+
+            Using comando As New SqlCommand("SP_MM_SEL_PARAM_LASTRO ROBO", conexao)
+                comando.CommandType = CommandType.StoredProcedure
+
+                comando.Parameters.AddWithValue("@cd_empresa", CdEmpresa)
+                comando.Parameters.AddWithValue("@dt_movimento", DtMovimento.ToString("yyyyMMdd"))
+                comando.Parameters.AddWithValue("@sist_origen", Sistorigem)
+
+                Using leitor As SqlDataReader = comando.ExecuteReader()
+                    While leitor.Read()
+                        Dim parametrizacao As New ParametrizacaoPapeisLastro()
+                        parametrizacao.CdEmporesa = Convert.ToString(leitor("CdEmporesa"))
+                        parametrizacao.IdEstoque = Convert.ToDouble(leitor("IdEstoque"))
+                        parametrizacao.VlFinanc = Convert.ToDouble(leitor("VlFinanc"))
+                        parametrizacao.IcOrdemConsumo = Convert.ToInt16(leitor("IcOrdemConsumo"))
+                        vResultado.Add(parametrizacao)
+                    End While
+                End Using
+            End Using
+        End Using
+
+    Catch ex As Exception
+        ' Tratamento de exceções, se necessário
+    End Try
+
+    Return vResultado
+End Function
 
 
-
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
 
 
 

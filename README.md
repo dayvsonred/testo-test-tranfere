@@ -180,6 +180,78 @@ teste
         Return vResultado
     End Function
 
+    Public Function VerificaTaxaCompromissada(ByVal CD_EMPRESA As String, ByVal DT_REF As Date, ByVal CD_TAXA As String) As List(Of TaxaCompromissada)
+    Dim vResultado As New List(Of TaxaCompromissada)()
+
+    Try
+        Using conexao As New SqlConnection("SuaStringDeConexão")
+            conexao.Open()
+
+            Using comando As New SqlCommand("SP_MM_SEL_TB_TAXA_COMPROMISSADA", conexao)
+                comando.CommandType = CommandType.StoredProcedure
+
+                comando.Parameters.AddWithValue("@OCD_EMPRESA", CD_EMPRESA)
+                comando.Parameters.AddWithValue("@CDT_PEF", DT_REF.ToString("yyyyMMdd"))
+                comando.Parameters.AddWithValue("@OCD_TAXA", CD_TAXA)
+
+                Using leitor As SqlDataReader = comando.ExecuteReader()
+                    While leitor.Read()
+                        Dim taxa As New TaxaCompromissada()
+                        taxa.Usu_Valida = Convert.ToString(leitor("Usu_Valida"))
+                        taxa.VL_REFERENCIAL = Convert.ToDouble(leitor("VL_REFERENCIAL"))
+                        taxa.VL_DELTA = Convert.ToDouble(leitor("VL_DELTA"))
+                        taxa.VL_DELTAWN = Convert.ToDouble(leitor("VL_DELTAWN"))
+                        taxa.DT_REF = Convert.ToString(leitor("DT_REF"))
+                        vResultado.Add(taxa)
+                    End While
+                End Using
+            End Using
+        End Using
+
+    Catch ex As Exception
+        ' Tratamento de exceções, se necessário
+    End Try
+
+    Return vResultado
+End Function
+
+
+Public Function VerificaTaxaCompromissada(ByVal CD_EMPRESA As String, ByVal DT_REF As Date, ByVal CD_TAXA As String) As List(Of TaxaCompromissada)
+    Dim vResultado As New List(Of TaxaCompromissada)()
+
+    Try
+        Using conexao As New SqlConnection("SuaStringDeConexão")
+            conexao.Open()
+
+            Using comando As New SqlCommand("SP_MM_SEL_TB_TAXA_COMPROMISSADA", conexao)
+                comando.CommandType = CommandType.StoredProcedure
+
+                comando.Parameters.AddWithValue("@OCD_EMPRESA", CD_EMPRESA)
+                comando.Parameters.AddWithValue("@CDT_PEF", DT_REF.ToString("yyyyMMdd"))
+                comando.Parameters.AddWithValue("@OCD_TAXA", CD_TAXA)
+
+                Using leitor As SqlDataReader = comando.ExecuteReader()
+                    While leitor.Read()
+                        Dim taxa As New TaxaCompromissada()
+                        taxa.Usu_Valida = Convert.ToString(leitor("Usu_Valida"))
+                        taxa.VL_REFERENCIAL = Convert.ToDouble(leitor("VL_REFERENCIAL"))
+                        taxa.VL_DELTA = Convert.ToDouble(leitor("VL_DELTA"))
+                        taxa.VL_DELTAWN = Convert.ToDouble(leitor("VL_DELTAWN"))
+                        taxa.DT_REF = Convert.ToString(leitor("DT_REF"))
+                        vResultado.Add(taxa)
+                    End While
+                End Using
+            End Using
+        End Using
+
+    Catch ex As Exception
+        ' Tratamento de exceções, se necessário
+    End Try
+
+    Return vResultado
+End Function
+
+
 '######################################################################################################################################################################
 '######################################################################################################################################################################
 '######################################################################################################################################################################

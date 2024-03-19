@@ -583,6 +583,106 @@ End Function
 '######################################################################################################################################################################
 '######################################################################################################################################################################
 
+ 
+
+    Public Function sBloquearDesbloquearCliente (Optional ByVal vpUsuarioControlM As String = "",
+                                                Optional Byval vpCdCliente As Long = 0,
+                                                Optional ByVal vpNmCliente As String = "",
+                                                Optional ByVal vpTipoAcao As Contrato.BloquearDesbloquearCliente = 0, 
+                                                Optional ByRef vpMsg As String = "") As Boolean
+        Dim vComando As New SqlCommand
+
+        Try
+            With vComando
+                CommandTimeout = 120
+                .Connection = Me.Conexao
+                .CommandType = CommandType.StoredProcedure 
+                .CommandText = "SP_MM_BLOQUEAR_DESBLOQUEAR_CLIENTE" 
+                    With .Parameters
+                    AddWithValue("@cd_operador", vpUsuarioControlM) 
+                    AddWithValue("@ic_funcao", vpTipoAcao)
+                    If vpCdCliente <> 0 Then
+                        .AddWithValue("@cd_cliente", vpCdCliente)
+                    End If
+                    If vpNmCliente <> "" Then
+                        AddWithValue("@nm_cliente", VPN Cliente)
+                    End If
+                    .Add("@mensagem", SqlDbType.VarChar, 100).Direction = ParameterDirection.Output
+                End With
+
+                .ExecuteNonQuery()
+            End With
+            
+            SBloquearDesbloquearCliente = True
+            
+            If vpTipoAcao = Contrato.BloquearDesbloquearCliente.bdcBloquear Then 
+                If CType(vComando.Parameters("Quensagem").Value, String) <> "" Then 
+                    vpMsg = CType(vComando.Parameters("Quensagem").Value, String) 
+                    SBLoquearDesbloquearCliente = False
+                End If
+            End If
+
+        Finally
+            Me.FecharConexao()
+        End Try
+
+    End Function
+
+
+
+
+Public Function sBloquearDesbloquearCliente(Optional ByVal vpUsuarioControlM As String = "",
+                                             Optional ByVal vpCdCliente As Long = 0,
+                                             Optional ByVal vpNmCliente As String = "",
+                                             Optional ByVal vpTipoAcao As Contrato.BloquearDesbloquearCliente = 0,
+                                             ByRef vpMsg As String = "") As Boolean
+    Dim vSucesso As Boolean = True
+
+    Try
+        Using Me.Conexao
+            Dim vComando As New SqlCommand("SP_MM_BLOQUEAR_DESBLOQUEAR_CLIENTE", Conexao)
+                vComando.CommandType = CommandType.StoredProcedure
+                vComando.CommandTimeout = 120
+
+            With vComando.Parameters
+                .Clear()
+                .AddWithValue("@cd_operador", vpUsuarioControlM)
+                .AddWithValue("@ic_funcao", vpTipoAcao)
+                If vpCdCliente <> 0 Then
+                    .AddWithValue("@cd_cliente", vpCdCliente)
+                End If
+                If Not String.IsNullOrEmpty(vpNmCliente) Then
+                    .AddWithValue("@nm_cliente", vpNmCliente)
+                End If
+                    .Add("@mensagem", SqlDbType.VarChar, 100).Direction = ParameterDirection.Output
+            End With
+            vComando.ExecuteNonQuery()
+
+            If vpTipoAcao = Contrato.BloquearDesbloquearCliente.bdcBloquear AndAlso Not IsDBNull(vComando.Parameters("@mensagem").Value) Then
+                    vpMsg = Convert.ToString(vComando.Parameters("@mensagem").Value)
+                    vSucesso = False
+            End If
+        End Using
+
+    Catch ex As Exception
+        ' Tratamento de exceções, se necessário
+        Console.WriteLine("Erro no processo sBloquearDesbloquearCliente: " & ex.Message) 
+    End Try
+
+    Return vSucesso
+End Function
+
+
+
+
+
+
+
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+
 
 
 

@@ -512,11 +512,76 @@ End Function
 
 
 
+Public Function SelecionarCotacoes(ByVal vpCdEmpresa As String,
+                                    Optional ByVal vpNmMesa As String = "",
+                                    Optional ByVal vpCdCliente As Long = 0,
+                                    Optional ByVal vpIcOrigem As Long = Contrato.TipoOrigemOperacao.RoboLastro,
+                                    Optional ByVal vpVLFinanc As Double = 0) As List(Of Contrato.OperacoesCompromissadas)
+    Dim vResultado As New List(Of Contrato.OperacoesCompromissadas)
+
+    Try
+        Using vComando As New SqlCommand("SP_MM_SEL_COTACAO_VINCULACAO", Me.Conexao)
+            vComando.CommandType = CommandType.StoredProcedure
+
+            With vComando.Parameters
+                .Clear()
+                .AddWithValue("@CD_EMPRESA", vpCdEmpresa)
+                If Not String.IsNullOrEmpty(vpNmMesa) Then
+                    .AddWithValue("@nm_mesa", vpNmMesa)
+                End If
+                If vpCdCliente <> 0 Then
+                    .AddWithValue("@cd_cliente", vpCdCliente)
+                End If
+                .AddWithValue("@ic_fonte", vpIcOrigem)
+            End With
+
+            Me.Conexao.Open()
+            Using leitor As SqlDataReader = vComando.ExecuteReader()
+                While leitor.Read()
+                    Dim cotacao As New Contrato.OperacoesCompromissadas()
+                    cotacao._nomeEmpresa = Convert.ToString(leitor("_nomeEmpresa"))
+                    cotacao.codigoCotacao = Convert.ToString(leitor("codigoCotacao"))
+                    cotacao._fim = Convert.ToDateTime(leitor("_fim"))
+                    cotacao._NmCliente = Convert.ToString(leitor("_NmCliente"))
+                    cotacao.CdCamara = Convert.ToInt32(leitor("CdCamara"))
+                    cotacao._NuPrazo = Convert.ToInt32(leitor("_NuPrazo"))
+                    cotacao.VlOperacao = Convert.ToDouble(leitor("VlOperacao"))
+                    cotacao._CdsstatusCotacao = Convert.ToInt32(leitor("_CdsstatusCotacao"))
+                    cotacao._CdIndexador = Convert.ToString(leitor("_CdIndexador"))
+                    cotacao._PcIndexador = Convert.ToDouble(leitor("_PcIndexador"))
+                    cotacao.CdTipoTaxa = Convert.ToInt32(leitor("CdTipoTaxa"))
+                    cotacao.VLTaxaOver = Convert.ToDouble(leitor("VLTaxaOver"))
+                    cotacao._VLTaxa = Convert.ToDouble(leitor("_VLTaxa"))
+                    cotacao._DtInicio = Convert.ToDateTime(leitor("_DtInicio"))
+                    cotacao._CdAgrupPapel = Convert.ToString(leitor("_CdAgrupPapel"))
+                    cotacao.CdOperadorCotacao = Convert.ToString(leitor("CdOperadorCotacao"))
+                    cotacao._DtUltAlt = Convert.ToDateTime(leitor("_DtUltAlt"))
+                    cotacao.CdCliente = Convert.ToInt32(leitor("CdCliente"))
+                    cotacao.CdBanco = Convert.ToString(leitor("CdBanco"))
+                    cotacao.NuAgencia = Convert.ToString(leitor("NuAgencia"))
+                    cotacao.NuConta = Convert.ToString(leitor("NuConta"))
+                    cotacao.CdFormaLiquid = Convert.ToInt32(leitor("CdFormaLiquid"))
+                    cotacao.CdOperadorAlt = Convert.ToString(leitor("CdOperadorAlt"))
+                    cotacao.NuPrazoDU = Convert.ToInt32(leitor("NuPrazoDU"))
+
+                    vResultado.Add(cotacao)
+                End While
+            End Using
+        End Using
+    Finally
+        Me.FecharConexao()
+    End Try
+
+    Return vResultado
+End Function
 
 
 
 
-
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
 
 
 

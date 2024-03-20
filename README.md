@@ -842,6 +842,41 @@ Public Function TitulosParaLastro(ByVal vpIdEstoque As String _,
     End Function
 
 
+
+
+
+
+Public Class PapeisUsadosParaLastro 
+        Inherits EntidadeBase
+
+    Public Property CD_TITULO As String 
+    Public Property DT_Vencimento As Date 
+    Public Property DT_Vencimento_Operacao As String 
+    Public Property CD_BACEN As String 
+    Public Property Disponivel As String 
+    Public Property Categoria As String 
+    Public Property Vl_Pu_550 As String 
+    Public Property DT_Posicao As String 
+    Public Property IC_PRIORIDADE As String 
+    Public Property Cd_Papel As String 
+    Public Property Ds_Papel As String 
+    Public Property Cd_ETQ As String 
+    Public Property Cd_Agrup_Papel As String 
+    Public Property IC_EXCECOES As String 
+    Public Property QTDE_RESERVADA As String 
+    Public Property Valor As String 
+    Public Property Vl_Pu_Volta As String 
+    Public Property TipoEstoque As String 
+    Public Property QTDE_Titulo As String 
+    Public Property QTDE_Utilizada As String 
+    Public Property QTDE_Disponivel As String 
+    Public Property COD_SRIE As String 
+    Public Property VL_Pu_Mercado As String 
+    Public Property TipoPrecoUnitario As String 
+    Public Property TipoPU_Operacao As String 
+
+End Class
+
 '######################################################################################################################################################################
 '######################################################################################################################################################################
 '######################################################################################################################################################################

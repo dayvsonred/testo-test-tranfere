@@ -949,6 +949,74 @@ End Function
 
 
 
+
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+
+
+
+    Public Function ProximaSequencia(ByVal CdCotacao As String) As Integer 
+
+        Dim Comando As New SqlCommand
+        Dim Retorna As Integer
+
+        Try
+            With Comando
+                .Connection = Me.Conexao
+                .CommandType = CommandType.StoredProcedure 
+                .CommandText = "SP_MM_RETORNA_NU_SEQ"
+
+                With .Parameters
+                    .Clear()
+                    .AddWithValue("@CD_COTACAO", CdCotacao)
+                End With
+
+                Retorna CType(.ExecuteScalar(), Integer)
+
+                If Retorna >= 0 Then
+                    Return Retorna
+                Else
+                    Return -1
+                End If
+
+            End with
+
+        Finally
+            Me.FecharConexao()
+        End Try
+
+    End Function
+
+
+
+Public Function ProximaSequencia(ByVal CdCotacao As String) As Integer
+    Dim Retorna As Integer = -1
+
+    Try
+        Using Comando As New SqlCommand("SP_MM_RETORNA_NU_SEQ", Me.Conexao)
+            Comando.CommandType = CommandType.StoredProcedure
+            Comando.Parameters.AddWithValue("@CD_COTACAO", CdCotacao)
+
+            Using leitor As SqlDataReader = Comando.ExecuteReader()
+                If leitor.Read() Then
+                    Retorna = Convert.ToInt32(leitor(0))
+                End If
+            End Using
+        End Using
+    Catch ex As Exception
+        ' Lidar com exceção aqui
+        Console.WriteLine("Ocorreu um erro ao retornar a próxima sequência: " & ex.Message)
+    Finally
+        Me.FecharConexao()
+    End Try
+
+    Return Retorna
+End Function
+
+
+
 '######################################################################################################################################################################
 '######################################################################################################################################################################
 '######################################################################################################################################################################

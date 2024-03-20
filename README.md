@@ -685,8 +685,167 @@ End Function
 
 
 
+Public Function TitulosParaLastro(ByVal vpIdEstoque As String _,
+        ByVal vpNmMesa As String _,
+        ByVal vpCdEmpresa As String _,
+        Byval vpdtInicio As Date _,
+        Byval vpdtFim As Date _,
+        Optional Byval vpCdTitulo As String = "" _,
+        Optional ByVal vpCdCamara As Long = 0 _,
+        Optional ByVal vpAutomatico As Integer = Contrato.FormaLastro.flRobo _,
+        Optional Byval vpOrigem As Integer = Contrato.TipoOrigemOperacao.Integrador _,
+        Optional ByVal vpSistOrigem As String = "") As List(of Contrato.PapeisUsadosParaLastro)
+
+        Dim vComando As New SqlCommand
+        Dim retorno As New DataTable()
+
+        Dim vAdapter As SqlDataAdapter 
+        Dim vTabela As DataTable
+        Dim vResultado As List(Of Contrato.PapeisUsadosParaLastro)
+
+        Try
+            With vComando
+                .Connection = Me.Conexao
+                .CommandType = CommandType.StoredProcedure
+                If vpIdEstoque = "T" Then           '-Estoque Terceiros
+                    .CommandText = "SP_MM_SEL TERCEIROS LASTRO_ROBO"
+                ElseIf vpIdEstoque = "p" Then       '-Estoque Proprio
+                    .CommandText = "SP_MM_SEL PROPRIO LASTRO_ROBO"
+                ElseIf vpIdEstoque = "L" Then       '-Estoque LM
+                    .CommandText = "SP_MM_SEL_LM_LASTRO ROBO"
+                End If
+
+                With .Parameters
+                    Clear()
+                    AddWithValue("@NM_MESA", vpNmMesa)
+                    AddWithValue("@CD_EMPRESA", vpCdEmpresa)
+                    AddWithValue("@DT_INICIO", vpdtInicio.ToString("yyyyMMdd")) 
+                    AddWithValue("@DT_FIM", vpdtFim.ToString("yyyyMMdd"))
 
 
+                    If vpCdTitulo <> "" Then
+                        .AddWithValue("@CD_TITULO", vpCdTitulo)
+                    End If
+                    If vpCdCamara <> 0 Then
+                        .AddWithValue("@CD_CAMARA", vpCdCamara)
+                    End If
+                        .AddWithValue("@IC_AUTOMATICO", vpAutomatico) 
+                        .AddWithValue("@IC_ORIGEM", vpOrigem) 
+                        .AddWithValue("@SIST_ORIGEM", vpSistOrigem)
+                    End With
+                End With
+
+                vAdapter = New SqlDataAdapter(vComando)
+                vTabela = New DataTable()
+                vAdapter.Fill(vTabela)
+
+                vResultado = New List(Of Contrato. PapeisUsadosParaLastro)() 
+                For Each vLinha As DataRow In vTabela.Rows
+                    vResultado.Add(New Contrato. PapeisUsadosParaLastro(vLinha))
+                Next
+
+                Return vResultado
+
+            Finally
+                Me.FecharConexao()
+            End Try
+            
+    End Function
+
+
+
+    Public Function TitulosParaLastro(ByVal vpIdEstoque As String,
+                                    ByVal vpNmMesa As String,
+                                    ByVal vpCdEmpresa As String,
+                                    ByVal vpdtInicio As Date,
+                                    ByVal vpdtFim As Date,
+                                    Optional ByVal vpCdTitulo As String = "",
+                                    Optional ByVal vpCdCamara As Long = 0,
+                                    Optional ByVal vpAutomatico As Integer = Contrato.FormaLastro.flRobo,
+                                    Optional ByVal vpOrigem As Integer = Contrato.TipoOrigemOperacao.Integrador,
+                                    Optional ByVal vpSistOrigem As String = "") As List(Of Contrato.PapeisUsadosParaLastro)
+
+        Dim vResultado As New List(Of Contrato.PapeisUsadosParaLastro)
+
+        Try
+            Using vComando As New SqlCommand()
+                vComando.Connection = Me.Conexao
+                vComando.CommandType = CommandType.StoredProcedure
+
+                Select Case vpIdEstoque
+                    Case "T"
+                        vComando.CommandText = "SP_MM_SEL_TERCEIROS_LASTRO_ROBO"
+                    Case "P"
+                        vComando.CommandText = "SP_MM_SEL_PROPRIO_LASTRO_ROBO"
+                    Case "L"
+                        vComando.CommandText = "SP_MM_SEL_LM_LASTRO_ROBO"
+                End Select
+
+                With vComando.Parameters
+                    .AddWithValue("@NM_MESA", vpNmMesa)
+                    .AddWithValue("@CD_EMPRESA", vpCdEmpresa)
+                    .AddWithValue("@DT_INICIO", vpdtInicio.ToString("yyyyMMdd"))
+                    .AddWithValue("@DT_FIM", vpdtFim.ToString("yyyyMMdd"))
+
+                    If Not String.IsNullOrEmpty(vpCdTitulo) Then
+                        .AddWithValue("@CD_TITULO", vpCdTitulo)
+                    End If
+
+                    If vpCdCamara <> 0 Then
+                        .AddWithValue("@CD_CAMARA", vpCdCamara)
+                    End If
+
+                    .AddWithValue("@IC_AUTOMATICO", vpAutomatico)
+                    .AddWithValue("@IC_ORIGEM", vpOrigem)
+                    .AddWithValue("@SIST_ORIGEM", vpSistOrigem)
+                End With
+
+                Using leitor As SqlDataReader = vComando.ExecuteReader()
+                    While leitor.Read()
+                        Dim papeis As New Contrato.PapeisUsadosParaLastro()
+
+                            papeis.CD_TITULO = Convert.ToString(leitor("CD_TITULO"))
+                            papeis.DT_Vencimento = Convert.ToDateTime(leitor("DT_Vencimento"))
+                            papeis.DT_Vencimento_Operacao = Convert.ToString(leitor("DT_Vencimento_Operacao"))
+                            papeis.CD_BACEN = Convert.ToString(leitor("CD_BACEN"))
+                            papeis.Disponivel = Convert.ToString(leitor("Disponivel"))
+                            papeis.Categoria = Convert.ToString(leitor("Categoria"))
+                            papeis.Vl_Pu_550 = Convert.ToString(leitor("Vl_Pu_550"))
+                            papeis.DT_Posicao = Convert.ToString(leitor("DT_Posicao"))
+                            papeis.IC_PRIORIDADE = Convert.ToString(leitor("IC_PRIORIDADE"))
+                            papeis.Cd_Papel = Convert.ToString(leitor("Cd_Papel"))
+                            papeis.Ds_Papel = Convert.ToString(leitor("Ds_Papel"))
+                            papeis.Cd_ETQ = Convert.ToString(leitor("Cd_ETQ"))
+                            papeis.Cd_Agrup_Papel = Convert.ToString(leitor("Cd_Agrup_Papel"))
+                            papeis.IC_EXCECOES = Convert.ToString(leitor("IC_EXCECOES"))
+                            papeis.QTDE_RESERVADA = Convert.ToString(leitor("QTDE_RESERVADA"))
+                            papeis.Valor = Convert.ToString(leitor("Valor"))
+                            papeis.Vl_Pu_Volta = Convert.ToString(leitor("Vl_Pu_Volta"))
+                            papeis.TipoEstoque = Convert.ToString(leitor("TipoEstoque"))
+                            papeis.QTDE_Titulo = Convert.ToString(leitor("QTDE_Titulo"))
+                            papeis.QTDE_Utilizada = Convert.ToString(leitor("QTDE_Utilizada"))
+                            papeis.QTDE_Disponivel = Convert.ToString(leitor("QTDE_Disponivel"))
+                            papeis.COD_SRIE = Convert.ToString(leitor("COD_SRIE"))
+                            papeis.VL_Pu_Mercado = Convert.ToString(leitor("VL_Pu_Mercado"))
+                            papeis.TipoPrecoUnitario = Convert.ToString(leitor("TipoPrecoUnitario"))
+                            papeis.TipoPU_Operacao = Convert.ToString(leitor("TipoPU_Operacao"))
+
+                        vResultado.Add(papeis)
+                    End While
+                End Using
+            End Using
+        Finally
+            Me.FecharConexao()
+        End Try
+
+        Return vResultado
+    End Function
+
+
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
 
 
 

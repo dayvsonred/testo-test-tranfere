@@ -1017,11 +1017,103 @@ End Function
 
 
 
+
 '######################################################################################################################################################################
 '######################################################################################################################################################################
 '######################################################################################################################################################################
 '######################################################################################################################################################################
 
+
+
+
+
+
+    Public Function GeraComando (ByVal vpCdEmpresa As String,
+                                    Optional ByVal vpCdCustodia As String = "5",
+                                    Optional ByVal vpCdTipoCliente As String = "CM") As String
+
+        Dim Comando As New SqlCommand
+        Dim Retorna As String
+
+        Try
+            With Comando
+                .Connection = Me.Conexao
+                .CommandType = CommandType. StoredProcedure
+                .CommandText = "SP_GERA_NUMERO_DOC"
+
+                With Parameters
+                    .Clear()
+                    .AddWithValue("@CD_CUSTODIA", vpCdCustodia)
+                    .AddWithValue("@CD_TIPO_CLIENTE", vpCdTipoCliente) 
+                    .AddWithValue("@CD_EMPRESA", vpCdEmpresa)
+                End With
+
+                Retorna = CType(.ExecuteScalar(), String)
+                
+                If Retorna Is DBNull.Value Then
+                    GeraComando = "-1"
+                Else
+                    GeraComando = Retorna
+                End If
+
+            End With
+
+        Finally
+            Me.FecharConexao()
+        End Try
+
+    End Function
+
+
+
+
+
+    Public Function GeraComando(ByVal vpCdEmpresa As String,
+                            Optional ByVal vpCdCustodia As String = "5",
+                            Optional ByVal vpCdTipoCliente As String = "CM") As String
+
+    Dim Retorna As String = "-1"
+
+    Try
+        Using Comando As New SqlCommand("SP_GERA_NUMERO_DOC", Me.Conexao)
+            Comando.CommandType = CommandType.StoredProcedure
+
+            With Comando.Parameters
+                .Clear()
+                .AddWithValue("@CD_CUSTODIA", vpCdCustodia)
+                .AddWithValue("@CD_TIPO_CLIENTE", vpCdTipoCliente)
+                .AddWithValue("@CD_EMPRESA", vpCdEmpresa)
+            End With
+
+            Using leitor As SqlDataReader = Comando.ExecuteReader()
+                If leitor.Read() Then
+                    If Not leitor.IsDBNull(0) Then
+                        Retorna = leitor.GetString(0)
+                    End If
+                End If
+            End Using
+        End Using
+    Catch ex As Exception
+        ' Lidar com exceção aqui
+        Console.WriteLine("Ocorreu um erro ao gerar o comando: " & ex.Message)
+    Finally
+        Me.FecharConexao()
+    End Try
+
+    Return Retorna
+End Function
+
+
+
+
+
+
+
+
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
 
 
 

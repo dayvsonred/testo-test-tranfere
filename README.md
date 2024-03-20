@@ -883,6 +883,106 @@ End Class
 '######################################################################################################################################################################
 
 
+Public Function ConsultaPU5550(Eyval CdPapel As Integer) _ 
+                                As Contrato.DadosPU550
+    Dim vComando As New SqlCommand
+    Dim vAdapter As SqlDataAdapter 
+    Dim vTabela As DataTable
+    Dim vResultado As New Contrato.DadosPU550
+
+    Try
+        With vComando
+        .Connection = Me.Conexao
+        .CommandText = "SP_MM_CONSULTA PU550" 
+        .CommandType = CommandType.StoredProcedure
+        With .Parameters
+            .Clear()
+            .AddWithValue("@CD_PAPEL", CdPapel)
+            End With
+        End With
+        
+        vAdapter = New SqlDataAdapter(vComando) 
+        vTabela = New DataTable() 
+        vAdapter.Fill(vTabela)
+        If vTabela.Rows.Count > 0 Then
+            vResultado = New Contrato.DadosPUS50(vTabela.Rows(0))
+        End If
+
+        Return vResultado
+
+    Finally
+        Me.FecharConexao()
+    End Try
+End Function
+
+
+
+
+
+Public Function ConsultaPU5550(ByVal CdPapel As Integer) As Contrato.DadosPU550
+    Dim vComando As New SqlCommand
+    Dim vResultado As New Contrato.DadosPU550
+
+    Try
+        With vComando
+            .Connection = Me.Conexao
+            .CommandText = "SP_MM_CONSULTA_PU550" ' Corrigido o nome do procedimento armazenado
+            .CommandType = CommandType.StoredProcedure
+            With .Parameters
+                .Clear()
+                .AddWithValue("@CD_PAPEL", CdPapel)
+            End With
+        End With
+
+        Using leitor As SqlDataReader = vComando.ExecuteReader()
+            If leitor.Read() Then
+                vResultado.VL_PU_RET = Convert.ToString(leitor("VL_PU_RET"))
+            End If
+        End Using
+    Catch ex As Exception
+        ' Lidar com exceção aqui
+        Console.WriteLine("Ocorreu um erro durante a consulta ConsultaPU5550: " & ex.Message)
+    End Try
+
+    Return vResultado
+End Function
+
+
+
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

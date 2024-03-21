@@ -1187,8 +1187,150 @@ End Function
 '######################################################################################################################################################################
 
 
+Public Function GravaLogOperRobo(@yval vIdentCot As Contrato.IdentificarCotacao, 
+                                    ByVal vNu_Max_Seq As Integer,
+                                    Byval vListIdentPapeis As List(of Contrato. PapeisUsadosParaLastro)) As Boolean
+
+        Dim Comando As New SqlCommand
+        Dim Retorna As String
+        Dim y As Integer
 
 
+        Try
+            With Comando
+                .Connection = Me.Conexao
+                .CommandType = CommandType.StoredProcedure
+                .CommandText = "SP_MM_INC_TB_LOG_OPER_ROBO"
+            End With
+
+            For y = 0 To vListIdentPapeis.Count - 1
+
+                If vListIdentPapeis(y).CD_TITULO <> "" Then
+
+                    With Comando
+
+                        vNu_Max_Seq = vNu_Max_Seq + 1
+
+                        With Parameters
+                            .Clear()
+                            .AddWithValue("CDT MOVIMENTO", Date.Now)
+                            .AddWithValue("@CD_COTACAO", vIdentCot.CD_COTACAO)
+                            .AddWithValue("@NU_SEQ", vNu_Max_Seq)
+                            .AddWithValue("@CD_OPERACAO_PROD", vIdentCot.CD_OPERACAO_PROD)
+                            .AddWithValue("CDT_INICIO", vIdentCot.DT_INICIO)
+                            .AddWithValue("CDT_FIM", vIdentCot.DT_FIM)
+                            .AddWithValue("ENU_PRAZO DU", vIdentCot.NU_PRAZO_DU)
+                            .AddWithValue("@VL TAXA", vIdentCot.VL_TAXA)
+                            .AddWithValue("@VL_OPERACAO", vIdentCot.VL_OPERACAO)
+                            .AddWithValue("@CD_INDEXADOR", vIdentCot.CD_INDEXADOR)
+                            .AddWithValue("@CD_OPERADOR_COTACAO", vIdentCot.CD_OPERADOR_COTACAO)
+                            .AddWithValue("@CD_CAIXA", vListIdentPapeis(y).TipoEstoque)
+                            .AddWithValue("@CD_PAPEL", vListIdentPapeis(y).Cd_Papel)
+                            .AddWithValue("@CD_TITULO", vListIdentPapeis(y).CD_TITULO) 
+                            .AddWithValue("@CD_BACEN", vListIdentPapeis(y).CD_BACEN) 
+                            .AddWithValue("@OT_VENCIMENTO", vListIdentPapeis(y).DT_Vencimento)
+                            .AddWithValue("@DT VENCIMENTO_OPERACAO", vListIdentPapeis(y).DT_Vencimento_Operacao) 
+                            .AddWithValue("@CD_ETQ", vListIdentPapeis(y).cd_ETQ)
+                            If UCase(vListIdentPapeis (y). TipoPrecoUnitario) = "PUMERCADO" Then 
+                                .AddWithValue("@VL_PU", vListIdentPapeis(y).Vl_Pu_Mercado)
+                            Else
+                                .AddWithValue("@VL_PU", vListIdentPapeis(y).Vl_Pu_550)
+                            End If
+                            .AddWithValue("@VL PU_550", vListIdentPapeis(y).Vl_Pu_Volta)
+                            .AddWithValue("@NU_QUANTIDADE TITULO", vListIdentPapeis(y).QTDE_Titulo)
+                            .AddWithValue("NU QUANTIDADE UTILIZADA", vListIdentPapeis(y).QTDE_Utilizada) 
+                            .AddWithValue("ONU QUANTIDADE DISPONIVEL", vListIdentPapeis(y).Disponivel) 
+                            .AddWithValue("@DS_ERRO", "")
+                        End With
+        
+                        Retorna CType(.ExecuteNonQuery(), String)
+
+                        If Retorna = "0" Then
+                            Return False
+                        End If
+                    End With
+                End If
+
+            Next
+
+            Return True
+
+        Finally
+            Me.FecharConexao()
+        End Try
+
+End Function
+
+
+
+
+
+
+
+
+Public Function GravaLogOperRobo(ByVal vIdentCot As Contrato.IdentificarCotacao,
+                                  ByVal vNu_Max_Seq As Integer,
+                                  ByVal vListIdentPapeis As List(Of Contrato.PapeisUsadosParaLastro)) As Boolean
+
+    Dim Comando As New SqlCommand
+
+    Try
+        Using Comando
+            Comando.Connection = Me.Conexao
+            Comando.CommandType = CommandType.StoredProcedure
+            Comando.CommandText = "SP_MM_INC_TB_LOG_OPER_ROBO"
+
+            For Each papel In vListIdentPapeis
+                If papel.CD_TITULO <> "" Then
+                    vNu_Max_Seq += 1
+
+                    With Comando.Parameters
+                        .Clear()
+                        .AddWithValue("@CDT_MOVIMENTO", Date.Now)
+                        .AddWithValue("@CD_COTACAO", vIdentCot.CD_COTACAO)
+                        .AddWithValue("@NU_SEQ", vNu_Max_Seq)
+                        .AddWithValue("@CD_OPERACAO_PROD", vIdentCot.CD_OPERACAO_PROD)
+                        .AddWithValue("@CDT_INICIO", vIdentCot.DT_INICIO)
+                        .AddWithValue("@CDT_FIM", vIdentCot.DT_FIM)
+                        .AddWithValue("@ENU_PRAZO_DU", vIdentCot.NU_PRAZO_DU)
+                        .AddWithValue("@VL_TAXA", vIdentCot.VL_TAXA)
+                        .AddWithValue("@VL_OPERACAO", vIdentCot.VL_OPERACAO)
+                        .AddWithValue("@CD_INDEXADOR", vIdentCot.CD_INDEXADOR)
+                        .AddWithValue("@CD_OPERADOR_COTACAO", vIdentCot.CD_OPERADOR_COTACAO)
+                        .AddWithValue("@CD_CAIXA", papel.TipoEstoque)
+                        .AddWithValue("@CD_PAPEL", papel.Cd_Papel)
+                        .AddWithValue("@CD_TITULO", papel.CD_TITULO)
+                        .AddWithValue("@CD_BACEN", papel.CD_BACEN)
+                        .AddWithValue("@OT_VENCIMENTO", papel.DT_Vencimento)
+                        .AddWithValue("@DT_VENCIMENTO_OPERACAO", papel.DT_Vencimento_Operacao)
+                        .AddWithValue("@CD_ETQ", papel.Cd_ETQ)
+                        .AddWithValue("@VL_PU", IIf(UCase(papel.TipoPrecoUnitario) = "PUMERCADO", papel.Vl_Pu_Mercado, papel.Vl_Pu_550))
+                        .AddWithValue("@VL_PU_550", papel.Vl_Pu_Volta)
+                        .AddWithValue("@NU_QUANTIDADE_TITULO", papel.QTDE_Titulo)
+                        .AddWithValue("@NU_QUANTIDADE_UTILIZADA", papel.QTDE_Utilizada)
+                        .AddWithValue("@NU_QUANTIDADE_DISPONIVEL", papel.Disponivel)
+                        .AddWithValue("@DS_ERRO", "")
+                    End With
+
+                    Dim result As Integer = Comando.ExecuteNonQuery()
+
+                    If result = 0 Then
+                        Return False
+                    End If
+                End If
+            Next
+        End Using
+
+        Return True
+
+    Catch ex As Exception
+        ' Lidar com exceção aqui
+        Console.WriteLine("Ocorreu um erro ao gravar o log de operação do robô: " & ex.Message)
+        Return False
+    Finally
+        Me.FecharConexao()
+    End Try
+End Function
 
 
 

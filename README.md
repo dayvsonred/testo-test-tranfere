@@ -1119,6 +1119,74 @@ End Function
 
 
 
+Public Function IdentificarCotacao(ByVal CdCotacao As String) _ As Contrato.IdentificarCotacao
+    Dim vComando As New SqlCommand
+    Dim vAdapter As SqlDataAdapter
+    Dim vTabela As DataTable
+    Dim vResultado As New Contrato.IdentificarCotacao
+
+    Try
+    With vComando
+        .Connection = Me.Conexao
+        .CommandType = CommandType.StoredProcedure 
+        .CommandText = "SP_MM_SEL_COTACAO"
+
+        With .Parameters
+        .Clear()
+        .AddWithValue("@cd_cotacao", CdCotacao)
+        End With
+    End With
+
+    vAdapter = New SqlDataAdapter(vComando) 
+    vTabela = New DataTable() 
+    vAdapter.Fill(vTabela)
+
+    If vTabela.Rows.Count > 0 Then
+        vResultado = New Contrato.IdentificarCotacao (vTabela.Rows(0))
+    End If
+
+    Return vResultado
+
+    Catch ex As SqlException 
+        Return Nothing
+    Finally
+        Me.FecharConexao()
+    End Try
+End Function
+
+
+Public Function IdentificarCotacao(ByVal CdCotacao As String) As Contrato.IdentificarCotacao
+    Dim vResultado As New Contrato.IdentificarCotacao
+
+    Try
+        Using vComando As New SqlCommand("SP_MM_SEL_COTACAO", Me.Conexao)
+            vComando.CommandType = CommandType.StoredProcedure
+            vComando.Parameters.AddWithValue("@cd_cotacao", CdCotacao)
+
+            Using leitor As SqlDataReader = vComando.ExecuteReader()
+                If leitor.Read() Then
+                    vResultado = New Contrato.IdentificarCotacao(leitor)
+                End If
+            End Using
+        End Using
+    Catch ex As Exception
+        ' Lidar com exceção aqui
+        Console.WriteLine("Ocorreu um erro ao identificar a cotação: " & ex.Message)
+    Finally
+        Me.FecharConexao()
+    End Try
+
+    Return vResultado
+End Function
+
+
+
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+
+
 
 
 

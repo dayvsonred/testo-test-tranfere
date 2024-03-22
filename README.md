@@ -2110,10 +2110,74 @@ End Function
 
 
 
+
+
 '######################################################################################################################################################################
 '######################################################################################################################################################################
 '######################################################################################################################################################################
 '######################################################################################################################################################################
+
+
+
+Public Function ParametrizacaoEnvioEmail() As String
+    Dim vComando As New SqlCommand
+    Dim SSQL As String
+    Dim retorna As String
+
+    SSQL = "SELECT ISNULL(DS_CONTEUDO,'') DS_CONTEUDO FROM TB_PARAMETRO WHERE DS_PARAMETRO = 'STATUS ENVIO EMAIL SERVICO IM' AND IND_ATIVO=1" 
+    
+    Try
+        With vComando
+            .Connection = Me.Conexao
+            .CommandText = SSQL
+            .CommandType = CommandType.Text
+        End With
+
+        retorna = CType(vComando.ExecuteScalar(), String)
+
+        Return retorna
+
+    Finally
+        Me.FecharConexao()
+    End Try
+
+End Function
+
+
+
+
+
+
+
+Public Function ParametrizacaoEnvioEmail() As String
+    Dim retorna As String = ""
+    Dim SSQL As String = "SELECT ISNULL(DS_CONTEUDO,'') DS_CONTEUDO FROM TB_PARAMETRO WHERE DS_PARAMETRO = 'STATUS ENVIO EMAIL SERVICO IM' AND IND_ATIVO=1"
+
+    Try
+        Using Me.Conexao
+            Using comando As New SqlCommand(SSQL, conexao)
+                comando.CommandType = CommandType.Text
+                retorna = Convert.ToString(comando.ExecuteScalar())
+            End Using
+        End Using
+
+    Catch ex As Exception
+        ' Tratar a exceção aqui, se necessário
+
+    End Try
+
+    Return retorna
+End Function
+
+
+
+
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+
+
 
 
 

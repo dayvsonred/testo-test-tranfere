@@ -1497,6 +1497,179 @@ End Sub
 
 
 
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+
+
+
+
+
+
+
+Public Function GravaComplementoTitpu(ByVal vIdentCot As Contrato.IdentificarCotacao, 
+                                        ByVal vNu_Max_Seq As Integer,
+                                        ByVal vListIdentPapeis As List (Of Contrato.PapeisUsadosParaLastro)) As Boolean
+
+        Dim Comando As New SqlCommand
+        Dim Retorna As String
+        Dim y As Integer
+        Dim contas As ContasLiquidacao
+
+
+
+        Try
+
+            With Comando
+                .Connection = Me.Conexao
+                .CommandType = CommandType.StoredProcedure 
+                .CommandText = "SP_INSERE COMPL_TP"
+            End With
+
+            For y = 0 To vListIdentPapeis.Count - 1
+
+                If vListIdentPapeis(y).CD_TITULO <> "" Then
+
+                    With Comando
+                    vNu_Max_Seq += 1
+
+                    contas = RetornaContasBaseadoCdEtqPapel(vIdentCat, vListIdentPapeis(y))
+
+
+                    With Parameters
+                        .Clear()
+                        .AddWithValue("@CD_OPERACAO", vIdentCot.CD_COTACAO) 
+                        .AddWithValue("@NU_SEQ", vNu_Max_Seq) 
+                        .AddWithValue("ONU_SEQ_PERNA", 0)
+                        .AddWithValue("@CD_EMPRESA", vIdentCot.CD_EMPRESA) 
+                        .AddWithValue("@CD_INDEXADOR_OPERACAO", "NO") 
+                        .AddWithValue("@CD_INDEXADOR_ORIGEM", "NO") 
+                        .AddWithValue("@CD_TIPO_LASTRO_OPERACAO", "SLN") 
+                        .AddWithValue("@CD_TIPO_LASTRO_ORIGEM", "NO")
+                        .AddWithValue("@NM_EMPRESA", vIdentCot. NM_EMPRESA) 
+                        .AddWithValue("@CAMARA_CODIGO", 1)
+                        .AddWithValue("@IC_ESTOQUE_TRIGGER", 1)
+                        .AddWithValue("@IC_BOLETA", 1)
+                        .AddWithValue("@CD_ETQ", vListIdentPapeis (y).cd_ETQ)
+                        .AddWithValue("QIC_LIVRE_MOVIMENTACAO", vIdentCot. IC_LIVRE_MOVIMENTACAO) 
+                        .AddWithValue("@CNPJ_empresa", vIdentCot.NU_ISPB_IF)
+                        .AddWithValue("@cd_Sistema_HT", vIdentCot.CD_SISTEMA_HT)
+                        .AddWithValue("@cd_Sistema_Origem", vIdentCot.CD_SISTEMA_ORIGEM)
+                        .AddWithValue("@IC_CONTRAPARTE_BROKER", vIdentCot.IC_CONTRAPARTE_BROKER) 
+                        .AddWithValue("@IC_ORIGEM", 1)
+                        .AddWithValue("@Cta_Selic_Cedente", contas.ContaCedente)
+                        .AddWithValue("@Cta_Selic_Liquid_Cedente", contas.ContaLiquidacaoCedente) 
+                        .AddWithValue("@Cta_Selic_Cessionario", contas.ContaCessionario)
+                        .AddWithValue("@Cta_Selic_Liquid Cessionario", contas.ContaLiquidacaoCessionario)
+
+                    End With
+
+                    Retorna.ExecuteScalar().ToString
+
+                End With
+
+                If Retorna >>"0" Then
+
+                Return False
+
+            End If
+        Next
+
+        Return True
+
+    Finally
+        Me.FecharConexao()
+    End Try
+
+End Function
+
+
+
+Public Function GravaComplementoTitpu(ByVal vIdentCot As Contrato.IdentificarCotacao,
+                                       ByVal vNu_Max_Seq As Integer,
+                                       ByVal vListIdentPapeis As List(Of Contrato.PapeisUsadosParaLastro)) As Boolean
+
+    Dim Comando As New SqlCommand
+    Dim Retorna As String
+    Dim contas As ContasLiquidacao
+
+    Try
+        Using Comando
+            Comando.Connection = Me.Conexao
+            Comando.CommandType = CommandType.StoredProcedure
+            Comando.CommandText = "SP_INSERE_COMPL_TP"
+
+            For Each papel In vListIdentPapeis
+                If papel.CD_TITULO <> "" Then
+                    vNu_Max_Seq += 1
+                    contas = RetornaContasBaseadoCdEtqPapel(vIdentCot, papel)
+
+                    With Comando.Parameters
+                        .Clear()
+                        .AddWithValue("@CD_OPERACAO", vIdentCot.CD_COTACAO)
+                        .AddWithValue("@NU_SEQ", vNu_Max_Seq)
+                        .AddWithValue("@NU_SEQ_PERNA", 0)
+                        .AddWithValue("@CD_EMPRESA", vIdentCot.CD_EMPRESA)
+                        .AddWithValue("@CD_INDEXADOR_OPERACAO", "NO")
+                        .AddWithValue("@CD_INDEXADOR_ORIGEM", "NO")
+                        .AddWithValue("@CD_TIPO_LASTRO_OPERACAO", "SLN")
+                        .AddWithValue("@CD_TIPO_LASTRO_ORIGEM", "NO")
+                        .AddWithValue("@NM_EMPRESA", vIdentCot.NM_EMPRESA)
+                        .AddWithValue("@CAMARA_CODIGO", 1)
+                        .AddWithValue("@IC_ESTOQUE_TRIGGER", 1)
+                        .AddWithValue("@IC_BOLETA", 1)
+                        .AddWithValue("@CD_ETQ", papel.Cd_ETQ)
+                        .AddWithValue("@QIC_LIVRE_MOVIMENTACAO", vIdentCot.IC_LIVRE_MOVIMENTACAO)
+                        .AddWithValue("@CNPJ_empresa", vIdentCot.NU_ISPB_IF)
+                        .AddWithValue("@cd_Sistema_HT", vIdentCot.CD_SISTEMA_HT)
+                        .AddWithValue("@cd_Sistema_Origem", vIdentCot.CD_SISTEMA_ORIGEM)
+                        .AddWithValue("@IC_CONTRAPARTE_BROKER", vIdentCot.IC_CONTRAPARTE_BROKER)
+                        .AddWithValue("@IC_ORIGEM", 1)
+                        .AddWithValue("@Cta_Selic_Cedente", contas.ContaCedente)
+                        .AddWithValue("@Cta_Selic_Liquid_Cedente", contas.ContaLiquidacaoCedente)
+                        .AddWithValue("@Cta_Selic_Cessionario", contas.ContaCessionario)
+                        .AddWithValue("@Cta_Selic_Liquid_Cessionario", contas.ContaLiquidacaoCessionario)
+                    End With
+
+                    Retorna = Comando.ExecuteScalar().ToString()
+
+                    If Retorna <> "0" Then
+                        Return False
+                    End If
+                End If
+            Next
+
+            Return True
+        End Using
+
+    Catch ex As Exception
+        ' Lidar com exceção aqui
+        Console.WriteLine("Ocorreu um erro ao gravar o complemento de título: " & ex.Message)
+        Return False
+    Finally
+        Me.FecharConexao()
+    End Try
+
+End Function
+
+
+
+
+
+
+
+
+
+
+
+
+
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+
 
 
 

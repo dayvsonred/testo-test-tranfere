@@ -1832,12 +1832,47 @@ Public Function VerificaEstoqueDisponivel(ByVal vpDataMesa As Date,
             If papeis.CD_TITULO <> "" Then
                 Using Comando As New SqlCommand
                     With Comando.Parameters
-                        .Clear()
-                        .AddWithValue("@codCanara", vIdentCot.CD_CAMARA)
-                        .AddWithValue("@nm_mesa", vIdentCot.NPRESA)
-                        .AddWithValue("@codEmp", vIdentCot.CD_EMPRESA)
-                        ' Restante dos parâmetros omitido para brevidade
-                    End With
+                       .Clear()
+                    .AddWithValue("@codCanara", vIdentCot.CD_CAMARA)
+                    .AddWithValue("@nm_mesa", vIdentCot.NPRESA)
+                    .AddWithValue("@codEmp", vIdentCot.CD_EMPRESA)
+
+                    If papeis.TipoEstoque = "T" Then
+                        .AddWithValue("@codCai", "TERCEIROS")
+                        .AddWithValue("@dtVenorg", papeis.DT_Vencimento_Operacao.ToString("yyyyMMdd"))
+                    ElseIf papeis.TipoEstoque = "p" Then
+                        .AddWithValue("@codCai", "PROPRIO")
+                        .AddWithValue("@dtVenorg", papeis.DT_Vencimento.ToString("yyyyMMdd"))
+                    ElseIf papeis.TipoEstoque = "L" Then
+                        .AddWithValue("@codCai", "LA")
+                        .AddWithValue("@dtVenorg", papeis.DT_Vencimento.ToString("yyyyMMdd"))
+                    End If
+
+                    .AddWithValue("@papel", papeis.Cd_Papel)
+                    .AddWithValue("@dtIni", vIdentCot.DT_INICIO.ToString("yyyyMMdd"))
+                    .AddWithValue("@dtVen", vIdentCot.DT_FIN.ToString("yyyyMMdd"))
+                    .AddWithValue("@qtd", papeis.QTDE_Utilizada + papeis.QTDE_RESERVADA)
+                    .AddWithValue("@dtJor", vpDataMesa.ToString("yyyyMMdd"))
+
+                    Dim stInicio As Date = vIdentCot.DT_INICIO
+                    Dim stTermino As Date = vIdentCot.DT_FIM
+
+                    If vIdentCot.CD_INDEXADOR = "PRE" And vIdentCot.NU_PRAZO_DU = 1 Then
+                        Dim sDtVencto As Date = CDate(papeis.DT_Vencimento)
+                        Dim sprxVenctoPapel As Date
+
+                        If Not Datas.DiaUtil(sDtVencto) Then
+                            sDtVencto = Datas.ObterProximoDiaUtil(sDtVencto)
+                            .AddWithValue("@DiaUtil", 1)
+                            .AddWithValue("@PrxDtVenOrg", sDtVencto.ToString("yyyyMMdd"))
+                        Else
+                            sprxVenctoPapel = sDtVencto
+                            .AddWithValue("@DiaUtil", 0)
+                        End If
+                    Else
+                        .AddWithValue("@DiaUtil", 0)
+                    End If
+                End With
 
                     With Comando
                         .Connection = Me.Conexao
@@ -1866,8 +1901,6 @@ Public Function VerificaEstoqueDisponivel(ByVal vpDataMesa As Date,
         Me.FecharConexao()
     End Try
 End Function
-
-
 
 
 

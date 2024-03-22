@@ -1337,6 +1337,161 @@ End Function
 
 
 
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+
+
+
+
+
+
+
+
+Public Sub GravaLogOpersRobo (ByRef vpCD_COTACAO As String,
+                                ByRef vpNu_Seq As Integer,
+                                ByRef vpCD_OPERACAO_PROD As String, 
+                                ByRef vpDT_INICIO As Date, 
+                                ByRef VpDT_FIM As Date,
+                                ByRef vpNU_PRAZO_DU As Integer,
+                                ByRef vpVL_TAXA As Double,
+                                ByRef vpVL_OPERACAO As Double,
+                                ByRef vpCD_INDEXADOR As String,
+                                ByRef vpCD_OPERADOR_COTACAO As String, 
+                                ByRef vpCD_CAIXA As String,
+                                ByRef vpCD_PAPEL As String,
+                                ByRef vpCD_TITULO As String,
+                                ByRef vpCD_BACEN As String,
+                                ByRef vpDT_VENCIMENTO As String,
+                                ByRef vpDT_VENCIMENTO_OPERACAO As String,
+                                ByRef vpCD_ETQ As String,
+                                ByRef vpVL_PU As String,
+                                ByRef vpVL_PU_550 As String,
+                                ByRef vpNU_QUANTIDADE TITULO As String, 
+                                ByRef vpNU_QUANTIDADE UTILIZADA As String, 
+                                ByRef vpNU_QUANTIDADE DISPONIVEL As String, 
+                                ByRef vpDs_Erro As String)
+
+        Dim Comando As New SqlCommand
+
+        Try
+            With Comando
+                .Connection = Me.Conexao
+                .CommandType = CommandType.StoredProcedure 
+                .CommandText = "SP_MM_INC_TB_LOG_OPER_ROBO"
+                
+                With .Parameters
+                    .Clear()
+                    .AddWithValue("@DT_MOVIMENTO", Date.Now) 
+                    .AddWithValue("@CD_COTACAO", vpCD_COTACAO) 
+                    .AddWithValue("@NU_SEQ", vpNu_Seq)
+                    .AddWithValue("@CD_OPERACAO_PROD", vpCD_OPERACAO_PROD) 
+                    .AddWithValue("@DT_INICIO", vpDT_INICIO)
+                    .AddWithValue("@DT_FIM", vpDT_FIM)
+                    .AddWithValue("@NU_PRAZO_DU", vpNU_PRAZO_DU)
+                    .AddWithValue("@VL_TAXA", vpVL_TAXA)
+                    .AddWithValue("@VL_OPERACAO", vpVL_OPERACAO)
+                    .AddWithValue("@CD_INDEXADOR", vpCD_INDEXADOR)
+                    .AddWithValue("@CD_OPERADOR_COTACAO", vpCD_OPERADOR_COTACAO)
+                    .AddWithValue("@CD_CAIXA", IIF(vpCD_CAIXA = "", DBNull.Value, vpCD_CAIXA))
+                    .AddWithValue("@CD_PAPEL", IIf(vpCD_PAPEL = "", DBNull.Value, vpCD_PAPEL))
+                    .AddWithValue("@CD_TITULO", IIf(vpCD_TITULO = "", DBNull.Value, vpCD_TITULO))
+                    .AddWithValue("@CD_BACEN", IIF(vpCD_BACEN = "", DBNull.Value, vpCD_BACEN))
+                    .AddWithValue("@DT_VENCIMENTO", IIF(vpDT_VENCIMENTO = "", DBNull.Value, vpDT_VENCIMENTO))
+                    .AddWithValue("@DT_VENCIMENTO_OPERACAO", IIF(vpDT_VENCIMENTO_OPERACAO, DBNull.Value, vpDT_VENCIMENTO_OPERACAO)) 
+                    .AddWithValue("@CD_ETQ", IIF(vpCD_ETQ = "", DBNull.Value, vpCD_ETQ))
+                    .AddWithValue("@VL_PU", IIF(vpVL_PU = "", DBNull.Value, vpVL_PU))
+                    .AddwithValue("@VL_PU_550", IIf(vpVL_PU_550 = "", DBNull.Value, vpVL_PU_550))
+                    .AddWithValue("@NU_QUANTIDADE_TITULO", IIF(vpNU_QUANTIDADE_TITULO = "", DBNull.Value, vpNU_QUANTIDADE_TITULO))
+                    .AddWithValue("@NU_QUANTIDADE_UTILIZADA", IIF(vpNU_QUANTIDADE_UTILIZADA = "", DBNull.Value, vpNU_QUANTIDADE_UTILIZADA)) 
+                    .AddWithValue("@NU_QUANTIDADE_DISPONIVEL", IIF(vpNU_QUANTIDADEP_DISPONIVEL = "", DBNull.Value, vpNU_QUANTIDADE_DISPONIVEL)) 
+                    .AddWithValue("@DS_ERRO", vpDs_Erro)
+
+            End With
+
+            .ExecuteNonQuery()
+        End With
+
+    Finally
+        Me.FecharConexao()
+    End Try
+
+End Sub
+
+
+
+Public Sub GravaLogOpersRobo(ByVal vpCD_COTACAO As String,
+                              ByVal vpNu_Seq As Integer,
+                              ByVal vpCD_OPERACAO_PROD As String,
+                              ByVal vpDT_INICIO As Date,
+                              ByVal vpDT_FIM As Date,
+                              ByVal vpNU_PRAZO_DU As Integer,
+                              ByVal vpVL_TAXA As Double,
+                              ByVal vpVL_OPERACAO As Double,
+                              ByVal vpCD_INDEXADOR As String,
+                              ByVal vpCD_OPERADOR_COTACAO As String,
+                              ByVal vpCD_CAIXA As String,
+                              ByVal vpCD_PAPEL As String,
+                              ByVal vpCD_TITULO As String,
+                              ByVal vpCD_BACEN As String,
+                              ByVal vpDT_VENCIMENTO As String,
+                              ByVal vpDT_VENCIMENTO_OPERACAO As String,
+                              ByVal vpCD_ETQ As String,
+                              ByVal vpVL_PU As String,
+                              ByVal vpVL_PU_550 As String,
+                              ByVal vpNU_QUANTIDADE_TITULO As String,
+                              ByVal vpNU_QUANTIDADE_UTILIZADA As String,
+                              ByVal vpNU_QUANTIDADE_DISPONIVEL As String,
+                              ByVal vpDs_Erro As String)
+
+    Dim Comando As New SqlCommand
+
+    Try
+        Using Comando
+            Comando.Connection = Me.Conexao
+            Comando.CommandType = CommandType.StoredProcedure
+            Comando.CommandText = "SP_MM_INC_TB_LOG_OPER_ROBO"
+
+            With Comando.Parameters
+                .Clear()
+                .AddWithValue("@DT_MOVIMENTO", Date.Now)
+                .AddWithValue("@CD_COTACAO", vpCD_COTACAO)
+                .AddWithValue("@NU_SEQ", vpNu_Seq)
+                .AddWithValue("@CD_OPERACAO_PROD", vpCD_OPERACAO_PROD)
+                .AddWithValue("@DT_INICIO", vpDT_INICIO)
+                .AddWithValue("@DT_FIM", vpDT_FIM)
+                .AddWithValue("@NU_PRAZO_DU", vpNU_PRAZO_DU)
+                .AddWithValue("@VL_TAXA", vpVL_TAXA)
+                .AddWithValue("@VL_OPERACAO", vpVL_OPERACAO)
+                .AddWithValue("@CD_INDEXADOR", vpCD_INDEXADOR)
+                .AddWithValue("@CD_OPERADOR_COTACAO", vpCD_OPERADOR_COTACAO)
+                .AddWithValue("@CD_CAIXA", If(String.IsNullOrEmpty(vpCD_CAIXA), DBNull.Value, vpCD_CAIXA))
+                .AddWithValue("@CD_PAPEL", If(String.IsNullOrEmpty(vpCD_PAPEL), DBNull.Value, vpCD_PAPEL))
+                .AddWithValue("@CD_TITULO", If(String.IsNullOrEmpty(vpCD_TITULO), DBNull.Value, vpCD_TITULO))
+                .AddWithValue("@CD_BACEN", If(String.IsNullOrEmpty(vpCD_BACEN), DBNull.Value, vpCD_BACEN))
+                .AddWithValue("@DT_VENCIMENTO", If(String.IsNullOrEmpty(vpDT_VENCIMENTO), DBNull.Value, vpDT_VENCIMENTO))
+                .AddWithValue("@DT_VENCIMENTO_OPERACAO", If(String.IsNullOrEmpty(vpDT_VENCIMENTO_OPERACAO), DBNull.Value, vpDT_VENCIMENTO_OPERACAO))
+                .AddWithValue("@CD_ETQ", If(String.IsNullOrEmpty(vpCD_ETQ), DBNull.Value, vpCD_ETQ))
+                .AddWithValue("@VL_PU", If(String.IsNullOrEmpty(vpVL_PU), DBNull.Value, vpVL_PU))
+                .AddWithValue("@VL_PU_550", If(String.IsNullOrEmpty(vpVL_PU_550), DBNull.Value, vpVL_PU_550))
+                .AddWithValue("@NU_QUANTIDADE_TITULO", If(String.IsNullOrEmpty(vpNU_QUANTIDADE_TITULO), DBNull.Value, vpNU_QUANTIDADE_TITULO))
+                .AddWithValue("@NU_QUANTIDADE_UTILIZADA", If(String.IsNullOrEmpty(vpNU_QUANTIDADE_UTILIZADA), DBNull.Value, vpNU_QUANTIDADE_UTILIZADA))
+                .AddWithValue("@NU_QUANTIDADE_DISPONIVEL", If(String.IsNullOrEmpty(vpNU_QUANTIDADE_DISPONIVEL), DBNull.Value, vpNU_QUANTIDADE_DISPONIVEL))
+                .AddWithValue("@DS_ERRO", vpDs_Erro)
+            End With
+
+            Comando.ExecuteNonQuery()
+        End Using
+
+    Catch ex As Exception
+        ' Lidar com exceção aqui
+        Console.WriteLine("Ocorreu um erro ao gravar o log de operação do robô: " & ex.Message)
+    Finally
+        Me.FecharConexao()
+    End Try
+
+End Sub
 
 
 

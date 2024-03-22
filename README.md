@@ -2179,6 +2179,60 @@ End Function
 
 
 
+Public Sub AtualizaTabelaParametrizacaoEnvioEmail (ByRef vpStatus As String)
+    Dim vComando As New SqlCommand
+    Dim SSQL As String
+
+    sSQL = "UPDATE TB PARAMETRO SET DS_CONTEUDO ='" & UCase(Trim(vpStatus)) & "' WHERE DS_PARAMETRO = 'STATUS ENVIO EMAIL SERVICO IM' AND IND_ATIVO=1" 
+    
+    Try
+        With vComando
+            .Connection = Me.Conexao
+            .CommandText = sSQL
+            .CommandType = CommandType.Text
+        End With
+
+        vComando.ExecuteNonQuery()
+
+    Finally
+        Me.FecharConexao
+    End Try
+
+End Sub
+
+
+
+
+Public Sub AtualizaTabelaParametrizacaoEnvioEmail(ByRef vpStatus As String)
+    Dim sSQL As String = "UPDATE TB_PARAMETRO SET DS_CONTEUDO = @Status WHERE DS_PARAMETRO = 'STATUS ENVIO EMAIL SERVICO IM' AND IND_ATIVO = 1"
+
+    Try
+        Using Me.Conexao
+            Using comando As New SqlCommand(sSQL, conexao)
+                comando.CommandType = CommandType.Text
+                comando.Parameters.AddWithValue("@Status", UCase(Trim(vpStatus)))
+                comando.ExecuteNonQuery()
+            End Using
+        End Using
+
+    Catch ex As Exception
+        ' Tratar a exceção aqui, se necessário
+    Finally
+        Me.FecharConexao()
+    End Try
+End Sub
+
+
+
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+
+
+
+
+
 
 
 

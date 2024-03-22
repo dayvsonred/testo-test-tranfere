@@ -1910,10 +1910,72 @@ End Function
 '######################################################################################################################################################################
 '######################################################################################################################################################################
 
+ 
+
+
+
+Public Function LocalizaCodSerie(ByVal vpCd_Papel As Integer) As Integer
+    Dim vComando As New SqlCommand
+    Dim retorna As Integer
+    Dim SSQL As String
+
+    SSQL = "Select Isnull(COD_SRIE, 0) From TB PAPEL (NOLOCK) Where CD_PAPEL=" & vpcd_Papel & "" 
+
+    Try
+        With vComando
+            .Connection = Me.Conexao
+            .CommandType = CommandType.Text
+            .CommandText = SSQL
+        End With
+
+        retorna = CType(vComando.ExecuteScalar(), Integer)
+
+        Return retorna
+
+    Finally
+        Me.FecharConexao()
+    End Try
+End Function
 
 
 
 
+Public Function LocalizaCodSerie(ByVal vpCd_Papel As Integer) As Integer
+    Dim retorna As Integer = 0
+    Dim SSQL As String = "SELECT ISNULL(COD_SRIE, 0) FROM TB_PAPEL WITH (NOLOCK) WHERE CD_PAPEL = @CdPapel"
+
+    Try
+        Using conexao As New SqlConnection(Me.Conexao)
+            conexao.Open()
+
+            Using comando As New SqlCommand(SSQL, conexao)
+                comando.Parameters.AddWithValue("@CdPapel", vpCd_Papel)
+
+                Dim reader As SqlDataReader = comando.ExecuteReader()
+                If reader.Read() Then
+                    retorna = Convert.ToInt32(reader(0))
+                End If
+            End Using
+        End Using
+
+    Catch ex As Exception
+        ' Lidar com a exceção aqui, se necessário
+        retorna = 0
+
+    Finally
+        Me.FecharConexao()
+    End Try
+
+    Return retorna
+End Function
+
+
+
+
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
 
 
 

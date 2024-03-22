@@ -2232,6 +2232,88 @@ End Sub
 
 
 
+Public Function GravaCMPL_OPER PREC UNIT(ByVal vIdentCot As Contrato. IdentificarCotacao, _ 
+                                            ByVal vNu_Max_Seq As Integer, _
+                                            ByVal vListIdentPapeis As List (Of Contrato.PapeisUsadosParaLastro)) As Boolean
+
+    Dim Comando As New SqlCommand
+    Dim y As Integer
+    Dim SSQL As String
+
+    Try
+        With Comando
+        .Connection = Me.Conexao
+        .CommandType = CommandType.Text
+        For y = 0 To vListIdentPapeis.Count - 1
+
+            If UCase(vListIdentPapeis(y).TipoPrecoUnitario) "PUMERCADO" Then
+                sSQL = "UPDATE TBMM826_CMPL_OPER_PREC_UNIT SET COD_TIPO_PREC_UNIT = 2 WHERE CD_OPERACAO='" & vIdentCot.CD_COTACAO & "'"
+            Else
+                sSQL = "UPDATE TBMM826_CMPL_OPER_PREC_UNIT SET COD_TIPO_PREC_UNIT = 1 WHERE CD_OPERACAO='" & vIdentCot.CD_COTACAO & "'" 
+            End If
+
+            
+                .CommandText = sSQL
+                .ExecuteNonQuery()
+                Exit For
+            Next
+        End With
+
+            Return True
+        Finally
+            Me.FecharConexao()
+        End Try
+
+End Function
+
+
+
+
+
+
+Public Function GravaCMPL_OPER_PREC_UNIT(ByVal vIdentCot As Contrato.IdentificarCotacao, ByVal vNu_Max_Seq As Integer, ByVal vListIdentPapeis As List(Of Contrato.PapeisUsadosParaLastro)) As Boolean
+    Try
+        Using conexao As New SqlConnection(Me.Conexao)
+            conexao.Open()
+
+            For Each papeis In vListIdentPapeis
+                Dim tipoPrecoUnitario As String = UCase(papeis.TipoPrecoUnitario)
+                Dim sSQL As String = ""
+
+                If tipoPrecoUnitario = "PUMERCADO" Then
+                    sSQL = "UPDATE TBMM826_CMPL_OPER_PREC_UNIT SET COD_TIPO_PREC_UNIT = 2 WHERE CD_OPERACAO = @CdOperacao"
+                Else
+                    sSQL = "UPDATE TBMM826_CMPL_OPER_PREC_UNIT SET COD_TIPO_PREC_UNIT = 1 WHERE CD_OPERACAO = @CdOperacao"
+                End If
+
+                Using comando As New SqlCommand(sSQL, conexao)
+                    comando.Parameters.AddWithValue("@CdOperacao", vIdentCot.CD_COTACAO)
+                    comando.ExecuteNonQuery()
+                End Using
+
+                Exit For ' Apenas o primeiro item da lista será atualizado
+            Next
+        End Using
+
+        Return True
+
+    Catch ex As Exception
+        ' Tratar a exceção aqui, se necessário
+        Return False
+
+    Finally
+        Me.FecharConexao()
+    End Try
+End Function
+
+
+
+
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+
 
 
 

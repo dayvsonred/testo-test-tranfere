@@ -2047,6 +2047,77 @@ End Function
 
 
 
+Public Function BuscaValorPU(ByVal vpCdPapel As Integer, ByVal vpDtInicio As Date) As String 
+    Dim Comando As New SqlCommand
+    Dim Retorna As String
+    Try
+        With Comando
+            .Connection = Me.Conexao
+            .CommandType = CommandType.StoredProcedure
+            .CommandText = "SP_SELECIONA_VALOR_PU"
+            With .Parameters
+                .Clear()
+                .AddWithValue("@CD_PAPEL", vpCdPapel)
+                .AddWithValue("@DT_VALOR", vpDtInicio.ToString("yyyyMMdd"))
+            End With
+
+            Retorna = .ExecuteScalar().ToString()
+
+            Return Retorna
+
+        End With
+
+    Finally
+        Me.FecharConexao
+    End Try
+
+End Function
+
+
+
+
+
+
+
+Public Function BuscaValorPU(ByVal vpCdPapel As Integer, ByVal vpDtInicio As Date) As String
+    Dim Retorna As String = ""
+
+    Try
+        Using conexao As New SqlConnection(Me.Conexao)
+            conexao.Open()
+
+            Using comando As New SqlCommand("SP_SELECIONA_VALOR_PU", conexao)
+                comando.CommandType = CommandType.StoredProcedure
+                comando.Parameters.AddWithValue("@CD_PAPEL", vpCdPapel)
+                comando.Parameters.AddWithValue("@DT_VALOR", vpDtInicio.ToString("yyyyMMdd"))
+
+                Dim reader As SqlDataReader = comando.ExecuteReader()
+                If reader.Read() Then
+                    Retorna = Convert.ToString(reader(0))
+                End If
+            End Using
+        End Using
+
+    Catch ex As Exception
+        ' Tratar a exceção aqui, se necessário
+    Finally
+        Me.FecharConexao()
+    End Try
+
+    Return Retorna
+End Function
+
+
+
+
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+
+
+
+
 
 
 

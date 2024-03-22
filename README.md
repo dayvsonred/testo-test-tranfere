@@ -1979,6 +1979,69 @@ End Function
 
 
 
+Public Function TipoPrecoUnitario(ByVal vpCDCotacao As String) As String
+    Dim vComando As New SqlCommand
+    Dim retorna As String
+    Dim sSQL As String
+
+    SSQL = "select T830.DES_TIPO_PREC_UNIT from TBMM826_CMPL_OPER_PREC_UNIT TB26 INNER JOIN TBMM830_TIPO_PREC_UNIT TB30 ON TB26.COD_TIPO_PREC_UNIT = TB30.COD_TIPO_PREC_UNIT WHERE TB26.CD_OPERACAO='" & vpCDCotacao & "'"
+    
+    Try
+    
+        With vComando
+            .Connection = Me.Conexao
+            .CommandType = CommandType.Text
+            .CommandText = SSQL
+        End With
+
+        retorna CType(vComando.ExecuteScalar(), String)
+
+        Return UCase(Trim(retorna))
+
+    Finally
+        Me.FecharConexao()
+    End Try
+End Function
+
+
+
+
+Public Function TipoPrecoUnitario(ByVal vpCDCotacao As String) As String
+    Dim retorna As String = ""
+    Dim sSQL As String = "SELECT T830.DES_TIPO_PREC_UNIT FROM TBMM826_CMPL_OPER_PREC_UNIT TB26 INNER JOIN TBMM830_TIPO_PREC_UNIT TB30 ON TB26.COD_TIPO_PREC_UNIT = TB30.COD_TIPO_PREC_UNIT WHERE TB26.CD_OPERACAO = @CdCotacao"
+
+    Try
+        Using conexao As New SqlConnection(Me.Conexao)
+            conexao.Open()
+
+            Using comando As New SqlCommand(sSQL, conexao)
+                comando.Parameters.AddWithValue("@CdCotacao", vpCDCotacao)
+
+                Dim reader As SqlDataReader = comando.ExecuteReader()
+                If reader.Read() Then
+                    retorna = Convert.ToString(reader("DES_TIPO_PREC_UNIT")).Trim()
+                End If
+            End Using
+        End Using
+
+    Catch ex As Exception
+        ' Lidar com a exceção aqui, se necessário
+
+    Finally
+        Me.FecharConexao()
+    End Try
+
+    Return retorna.ToUpper()
+End Function
+
+
+
+
+
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
 
 
 

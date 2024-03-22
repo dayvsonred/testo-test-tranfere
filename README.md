@@ -1654,16 +1654,7 @@ Public Function GravaComplementoTitpu(ByVal vIdentCot As Contrato.IdentificarCot
 End Function
 
 
-
-
-
-
-
-
-
-
-
-
+ 
 
 '######################################################################################################################################################################
 '######################################################################################################################################################################
@@ -1671,6 +1662,72 @@ End Function
 '######################################################################################################################################################################
 
 
+
+
+Public Function AlterarCotacaoMae (Byval vpCdCotacao As String, Byval vpStatus As Statusopvinculo) As Boolean 
+    Dim Comando As New SqlCommand
+    Dim Retorna As Integer
+
+    Try
+    With Comando
+        Connection = Me.Conexao
+        .CommandType = CommandType.StoredProcedure 
+        .CommandText = "SP_MM_ALT_COTACAO_ORIGEM"
+        With .Parameters
+            .Clear()
+            .AddWithValue("@cd_cotacao", vpCdCotacao) 
+            .AddWithValue("@cd_status", vpStatus)
+        End With
+
+        Retorna CType(.ExecuteNonQuery(), Integer)
+
+        If Retorna = 0 Then
+            Return False
+        Else
+            Return True
+        End If
+
+    End With
+
+    Finally
+        Me.FecharConexao()
+    End Try
+
+End Function
+
+
+
+
+Public Function AlterarCotacaoMae(ByVal vpCdCotacao As String, ByVal vpStatus As Statusopvinculo) As Boolean 
+    Dim Comando As New SqlCommand
+
+    Try
+        With Comando
+            .Connection = Me.Conexao
+            .CommandType = CommandType.StoredProcedure 
+            .CommandText = "SP_MM_ALT_COTACAO_ORIGEM"
+
+            With .Parameters
+                .Clear()
+                .AddWithValue("@cd_cotacao", vpCdCotacao) 
+                .AddWithValue("@cd_status", vpStatus)
+            End With
+
+            Return .ExecuteNonQuery() <> 0
+        End With
+
+    Catch ex As Exception
+        ' Lida com a exceção aqui
+         Console.WriteLine("Ocorreu um erro ao alterar a AlterarCotacaoMae: " & ex.Message)
+        Return False
+    End Try
+End Function
+
+ 
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
 
 
 

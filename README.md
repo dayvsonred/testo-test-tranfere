@@ -1724,6 +1724,154 @@ Public Function AlterarCotacaoMae(ByVal vpCdCotacao As String, ByVal vpStatus As
 End Function
 
  
+
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+
+
+Public Function VerificaEstoqueDisponivel(Byval vpDataMesa As Date,
+                                            Byval vIdentCot As Contrato.IdentificarCotacao,
+                                            Byval vListIdentPapeis As List(of Contrato.PapeisUsadosParaLastro)) As Boolean
+    Dim Comando As New SqlCommand
+    Dim Retorna As String
+    Dim y As Integer
+    Try
+        
+        For y = To vListIdentPapeis.Count - 1
+            If vListIdentPapeis(y).CD_TITULO <> "" Then
+                With Comando
+                    With .Parameters 
+                        .Clear()
+                        
+                        .AddithValue("@codCanara", vIdentCot.CD_CAMARA) 
+                        .AddWithValue("@nm_mesa", vIdentCot.NPRESA) 
+                        .AddWithValue("@codEmp", vIdentCot.CD_EMPRESA)
+
+                        If vListIdentPapeis(y).TipoEstoque = "T" Then 
+                            .AddWithValue("@codCai", "TERCEIROS")
+                            .AddWithValue("edtVenorg", vListIdentPapeis (y).DT_Vencimento_Operacao.ToString("yyyyMMdd")) 
+                        ElseIf vListIdentPapeis (y). TipoEstoque = "p" Then
+                            .AddWithValue("@codCai", "PROPRIO")
+                            .AddhrithValue("@dtVenorg", vListIdentPapeis (y).DT_Vencimento.ToString("yyyyMMdd"))
+                        ElseIf vListIdentPapeis (y).TipoEstoque = "L" Then
+                            .AddithValue("@codCai", "LA")
+                            .AdithValue("@dtVenorg", vListIdentPapeis (y).DT_Vencimento. TeString("yyyyMMdd"))
+                        End If
+
+                            .AddithValue("@papel", viistidentPapais(y).Gil_Pape1)
+                            .AddidithValue("@dtIni", videntCat.DT_INICIO.TeString("yyyyMMdd"))
+                            .AddicithValue("@dtVen", videntCat.DT_FIN.TeString("yyyyMMdd"))
+
+                            'Na verificacao do estoque disponivel somar a quantidade reservada
+                            .AddWithValue("@qtd", vListIdentPapeis(y).QTDE_Utilizada + vListIdentPapeis(y).QTDE_RESERVADA) 
+                            .AddWithValue("@dtJor", vpDataMesa.ToString("yyyyMMdd"))
+                            '--AddWithValue("@dtLiq", )
+                            .AddWithValue("@codEtq", vListIdentPapeis(y).cd_ETQ)
+                            
+                            Dim stInicio As Date = vIdentCot.DT_INICIO
+                            Dim stTermino As Date = vIdentCot.DT_FIM
+
+                            If vIdentCot.CD_INDEXADOR = "PRE" And vIdentCot.NU_PRAZO_DU = 1 Then
+
+                                Dim sDtVencto As Date = CDate(vListIdentPapeis(y).DT_Vencimento)
+                                Dim sprxVenctoPapel As Date
+
+                                If Not Datas.DiaUtil(sDtVencto) Then '--False = não é dia útil, True = é dia útil
+                                    sDtVencto = Datas. ObterProximoDiaUtil(sDtVencto)
+                                    .AddWithValue("@DiaUtil", 1)
+                                    .AddWithValue("@PrxDtVenOrg", sDtVencto.ToString("yyyyMMdd"))
+                                Else
+                                
+                                    sPrxVenctoPapel = sDtVencto
+                                    .AddWithValue("@DiaUtil", 0)
+                                End If
+                            Else
+                                .AddWithValue("@DiaUtil", 0)
+                            End If
+
+                        End With
+
+                        .Connection = Me.Conexao
+                        .CommandType = CommandType.StoredProcedure
+
+                        If vListIdentPapeis (y). TipoEstoque = "L" Then 
+                            .CommandText = "SP_MM_VERIFICA_QTD_ESTOQUE_LM"
+                        Else
+                            .CommandText = "SP_MM_VERIFICA_QTD_ESTOQUE_PROPRIO"
+                        End If
+
+                        Retorna = .ExecuteScalar().ToString
+
+                    End With
+                    
+                    If Retorna <> "0" Then
+                        Return False
+                    End If
+            End If
+        Next
+
+        Return True
+
+    Finally
+        Me.FecharConexao()
+    End Try
+
+End Function
+
+
+
+
+
+Public Function VerificaEstoqueDisponivel(ByVal vpDataMesa As Date,
+                                           ByVal vIdentCot As Contrato.IdentificarCotacao,
+                                           ByVal vListIdentPapeis As List(Of Contrato.PapeisUsadosParaLastro)) As Boolean
+    Try
+        For Each papeis As Contrato.PapeisUsadosParaLastro In vListIdentPapeis
+            If papeis.CD_TITULO <> "" Then
+                Using Comando As New SqlCommand
+                    With Comando.Parameters
+                        .Clear()
+                        .AddWithValue("@codCanara", vIdentCot.CD_CAMARA)
+                        .AddWithValue("@nm_mesa", vIdentCot.NPRESA)
+                        .AddWithValue("@codEmp", vIdentCot.CD_EMPRESA)
+                        ' Restante dos parâmetros omitido para brevidade
+                    End With
+
+                    With Comando
+                        .Connection = Me.Conexao
+                        .CommandType = CommandType.StoredProcedure
+
+                        If papeis.TipoEstoque = "L" Then
+                            .CommandText = "SP_MM_VERIFICA_QTD_ESTOQUE_LM"
+                        Else
+                            .CommandText = "SP_MM_VERIFICA_QTD_ESTOQUE_PROPRIO"
+                        End If
+
+                        Return .ExecuteScalar().ToString() = "0"
+                    End With
+                End Using
+            End If
+        Next
+
+        ' Se nenhum estoque indisponível for encontrado, retorna verdadeiro
+        Return True
+
+    Catch ex As Exception
+        ' Tratar exceção aqui
+        Return False
+
+    Finally
+        Me.FecharConexao()
+    End Try
+End Function
+
+
+
+
+
+
 '######################################################################################################################################################################
 '######################################################################################################################################################################
 '######################################################################################################################################################################

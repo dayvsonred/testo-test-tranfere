@@ -2309,6 +2309,379 @@ End Function
 
 
 
+
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+'######################################################################################################################################################################
+
+
+
+
+
+
+
+
+
+
+Public Function GravaCotacaoDia(ByVal vIdentCot As Contrato.IdentificarCotacao, 
+                                ByVal vNu_Max_Seq As Integer,
+                                ByVal vListIdentPapeis As List(of Contrato. PapeisUsadosParaLastro)) As Boolean
+    Dim Comando As New SqlCommand
+    Dim Retorna As String
+    Dim y As Integer
+
+            Try
+                For y = 0 To vListIdentPapeis.Count - 1
+                    If vListIdentPapeis(y).CD_TITULO <> "" Then
+                    
+                        '--Gera Comando
+                        Dim strComando As String = GeraComando(vIdentCot.CD_EMPRESA)
+                        
+                        If strComando = "-1" Then
+                            Return False
+                        End If
+
+                        With Comando
+                            vNu_Max_Seq = vNu_Max_Seq+1
+
+                            With .Parameters
+                            .Clear()
+
+
+                            .AddWithValue("@CD_COTACAO", vIdentCot.CD_COTACAO) 
+                            .AddWithValue("@NU_SEQ", vNu_Max_Seq)
+                            .AddWithValue("@NU_SEQ PERNA", 0)
+                            .AddWithValue("@CD_SISTEMA", vIdentCot.CD_SISTEMA)
+                            .AddWithValue("@CD_SISTEMA_DESTINO", vIdentCot.CD_SISTEMA_DESTINO) 
+                            .AddWithValue("@NU_OPERACAO_PROD", strComando)
+                            .AddWithValue("@CD_OPERACAO_PROD", vIdentCot.CD_OPERACAO_PROD)
+                            .AddWithValue("@CD_PRODUTO", vIdentCot.CD_PRODUTO)
+                            .AddWithValue("@CD_TITULO", vListIdentPapeis(y).CD_TITULO) 
+                            .AddWithValue("@CD_AGRUP_PAPEL", DBNull.Value)
+                            .AddWithValue("@CD_PAPEL", vListIdentPapeis(y).Cd_Papel)
+                            .AddWithValue("@DS_PAPEL", vListIdentPapeis(y).Ds_Papel)
+                            .AddWithValue("@NM AGRUP_CARTEIRA", vIdentCot.NM_AGRUP_CARTEIRA)
+                            .AddWithValue("@CD_CLIENTE_GERENCIADO", vIdentCot.CD_CLIENTE_GERENCIADO)
+                            .AddWithValue("@NM_CLIENTE_GERENCIADO", vIdentCot.NP_CLIENTE_GERENCIADO)
+                            .AddWithValue("@CD_PROP_GERENCIAL", vIdentCot.CD_PROP_GERENCIAL)
+                            .AddWithValue("@NM_MESA", vIdentCot.NM_MESA)
+                            .AddWithValue("@NM_PROP_GERENCIAL", vIdentCot.NM_PROP_GERENCIAL)
+                            .AddWithValue("@CD_CLIENTE", vIdentCot.CD_CLIENTE)
+                            .AddWithValue("@NH_CLIENTE", vIdentCot.NM_CLIENTE)
+                            .AddWithValue("@CD_EMISSOR", vIdentCot.CD_EMISSOR)
+                            .AddWithValue("@NM_EMISSOR", 0)
+                            .AddWithValue("@CD_VENDEDOR", vIdentCot.CD_VENDEDOR)
+                            .AddWithValue("@NM_VENDEDOR", vIdentCot.NM_VENDEDOR)
+                            .AddWithValue("@CD_COMPRADOR", vIdentCot.CD_COMPRADOR)
+                            .AddWithValue("@NM_COMPRADOR", vIdentCot.NM_COMPRADOR)
+                            .AddWithValue("@IC_ISENTO", vIdentCot.IC_ISENTO)
+                            .AddWithValue("@CD_TIPO_OPERACAO", vIdentCot.CD_TIPO_OPERACAO)
+                            .AddWithValue("@NM_TIPO_OPERACAO", vIdentCot.NM_TIPO_OPERACAO)
+                            .AddWithValue("@CD_MODALIDADE", vIdentCat.CD_MODALIDADE)
+                            .AddWithValue("@IC_SECUNDARIA", vIdentCot.IC_SECUNDARIA)
+                            .AddwithValue("@CD_COMPOSICAO", vIdentCat.CD_COMPOSICAO)
+                            .AddWithValue("@CD_PROGRAMA", vIdentCot.CD_PROGRAMA) 
+                            .AddWithValue("@NM_PROGRAMA", vIdentCot. NM_PROGRAMA) 
+                            .AddWithValue("@CD_BANCO", vIdentCot.CD_BANCO) 
+                            .AddWithValue("@NU_AGENCIA", vIdentCot.NU_AGENCIA) 
+                            .AddWithValue("@NU_CONTA", vIdentCot.NU_CONTA) 
+                            .AddWithValue("@DT_INICIO", vIdentCot.DT_INICIO)
+                            .AddWithValue("@NU_PRAZO", vIdentCot.NU_PRAZO)
+                            .AddWithValue("@NU_PRAZO_DU", vIdentCot.NU_PRAZO_DU) 
+                            .AddWithValue("@DT_FIM", vIdentCot.DT_FIM) 
+                            .AddWithValue("@DT_ANTECIPACAO", DBNull.Value)
+                            .AddWithValue("@NU_SEQ_ORIG", 0)
+                            .AddWithValue("@CD_MOEDA", vIdentCot.CD_MOEDA)
+
+                            If vListIdentPapeis(y).TipoPrecoUnitario = "PUMERCADO" Then 
+                                .AddWithValue("@VL_PU", (vListIdentPapeis(y).Vl_Pu_Mercado)) 
+                                .AddWithValue("@VL_PU_RESG", (vListIdentPapeis(y).Vl_Pu_Volta)) 
+                                .AddWithValue("@VL_BRUTO", (Trunca(2, vListIdentPapeis(y).Vl_Pu_Volta * vListIdentPapeis(y).QTDE_Utilizada))) 
+                                .AddWithValue("@VL_OPERACAO", (Trunca(2, vListIdentPapeis(y).VL_Pu_Mercado * vListIdentPapeis(y).QTDE_Utilizada)))
+                            Else
+                            .AddWithValue("@VL_PU", (vListIdentPapeis(y).Vl_Pu_550)) 
+                            .AddWithValue("@VL_PU_RESG", (vListIdentPapeis(y).Vl_Pu_Volta)) 
+                            .AddWithValue("@VL_BRUTO", (Trunca(2, viistIdentPapeis(y).Vl_Pu_Volta * vListIdentPapeis(y).QTDE_Utilizada)))
+                            .AddWithValue("@VL_OPERACAO", (Trunca(2, vListIdentPapeis(y).Vl_Pu_550 * vListIdentPapeis(y).QTDE_Utilizada)))
+                            End If
+
+                            .AddWithValue("@VL_OPERACAO_SALDO", 0)
+                            .AddWithValue("@VL_IR", 0) 
+                            .AddWithValue("@VL_IOF", 0)
+                            .AddWithValue("@CD_TIPO_TAXA", vIdentCot.CD_TIPO_TAXA)
+                            .AddWithValue("@VL_TAXA", vIdentCot.VL_TAXA)
+                            .AddWithValue("@VL_TAXA_OVER", vIdentCot.VL_TAXA_OVER)
+                            .AddWithValue("@VL_TAXA_DESAGIO", 0)
+                            .AddWithValue("@VL_TAXA_COMISSAO", 0)
+                            .AddWithValue("@VL_TAXA CUPOM", 0)
+                            .AddWithValue("@VL_RESG_FINANC", 0)
+                            .AddWithValue("@VL_RESG_CONTAB", 0)
+                            .AddWithValue("@NU_QTDE", vListIdentPapeis(y).QTDE_Utilizada)
+                            .AddWithValue("@NU_QTDE_SALDO", DBNull.Value)
+                            .AddWithValue("@NU_CONTA_CETIP", DBNull.Value)
+                            .AddWithValue("@CD_INDEXADOR", vIdentCot.CD_INDEXADOR)
+                            .AddWithValue("@PC_INDEXADOR", vIdentCot.PC_INDEXADOR)
+                            .AddWithValue("@IC_HEDGE", 0)
+                            .AddWithValue("@CD_CUSTODIA", vIdentCot.CD_CUSTODIA)
+                            .AddWithValue("@DS_MOTIVO_CAUCAO", DBNull.Value)
+                            .AddWithValue("@NM_BENEFICIARIO", Framework.Convert.ToDB(vIdentCot.NM_BENEFICIARIO, "")) 
+                            .AddWithValue("@CD_FORMA_LIQUID", vIdentCot.CD_FORMA_LIQUID)
+                            .AddWithValue("ENU_PRAZO_AJUSTE", 0)
+                            .AddWithValue("@NU_CONTA_SELIC", vIdentCot.NU_CONTA_SELIC)
+
+                            Dim sTpEstoque As String = ""
+
+                            If vListIdentPapeis(y).TipoEstoque = "p" Then 
+                                STpEstoque = "PROPRIO"
+                            ElseIf vListIdentPapeis(y).TipoEstoque = "T" Then 
+                                STpEstoque = "TERCEIROS"
+                            ElseIf vListIdentPapeis(y).TipoEstoque = "L" Then 
+                                STpEstoque = "LM"
+                            End If
+
+                            .AddWithValue("@CD_TIPO_ESTOQUE", STpEstoque)
+                            .AddWithValue("@CD_CAIXA", STpEstoque)
+
+                            If STpEstoque = "TERCEIROS" Then
+                                .AddWithValue("@DT_VENCIMENTO_ORIGEM", vListIdentPapeis(y).DT_Vencimento_Operacao)
+                            Else
+                                .AddWithValue("@DT_VENCIMENTO_ORIGEM", vListIdentPapeis(y).DT_Vencimento)
+                            End If
+                            
+
+                            .AddWithValue("@CD_BROKER", 0)
+                            .AddWithValue("@NM_BROKER", DBNull.Value)
+                            .AddWithValue("@NM_PRACA", DBNull.Value)
+                            .AddWithValue("@CD_TIPO_DOLAR", DBNull.Value) 
+                            .AddWithValue("@CD_COTACAO_DOLAR", DBNull.Value) 
+                            .AddWithValue("@CD_OBJETIVO", DBNull.Value)
+                            .AddWithValue("@IC_CLIENTE1", vIdentCot.IC_CLIENTE1) 
+                            .AddWithValue("@IC_CAIXA", 0)
+                            .AddWithValue("@CD_LASTRO_GENERICO", DBNull.Value)
+                            .AddWithValue("@IC_DEB_ESPECIAL", 0)
+                            .AddWithValue("@NU_VINCULO", 0)
+                            .AddWithValue("@NU_VINC_DOC", strComando)
+                            .AddWithValue("@IC_FIM_DOC", 1)
+                            .AddWithValue("@NU_COMANDO", 0)
+                            .AddWithValue("@IC_DISTRIBUIDA", 0)
+                            .AddWithValue("@IC_CONTRATO_ANT", 0)
+                            .AddWithValue("@CD_OPERADOR_COTACAO", vIdentCot.CD_OPERADOR_COTACAO)
+                            .AddWithValue("@CD_OPERADOR_SUP", DBNull.Value)
+                            .AddWithValue("@CD_OPERADOR_ALT", vUsuarioControlM)
+                            .AddWithValue("@CD_STATUS_COTACAO", 1)
+                            .AddWithValue("@DT_INICIO_LIBERACAO", DBNull.Value)
+                            .AddWithValue("@DT_FIM_LIBERACAO", DBNull.Value)
+                            .AddWithValue("@VL_TAXA_252", vIdentCot.VL_TAXA_252) 
+                            .AddWithValue("@VL_TAXA_360", vIdentCot.VL_TAXA_368)
+                            .AddWithValue("@CD_INICIO_OPERACAO", vIdentCot.CD_INICIO_OPERACAO) 
+                            .AddWithValue("@IC_DISPONIVEL", 1)
+                            End With
+
+                            With Comando
+                                .Connection = Me.Conexao
+                                .CommandType = CommandType.StoredProcedure 
+                                .CommandText = "SP_INCLUI_COTACAO_DIA" 
+                            End With
+
+                            Retorna = .ExecuteScalar().ToString
+
+                            If Retorna <> "0" Then
+                                Return False
+                            End If
+                            Me.FecharConexao()
+                        End With
+                    End If
+                Next
+                Return True
+                Finally
+            End Try
+End Function
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Public Function GravaCotacaoDia(ByVal vIdentCot As Contrato.IdentificarCotacao, 
+                                    ByVal vNu_Max_Seq As Integer, 
+                                    ByVal vListIdentPapeis As List(Of Contrato.PapeisUsadosParaLastro)) As Boolean
+    Try
+        Using conexao As New SqlConnection(Me.Conexao)
+            conexao.Open()
+
+            For Each papel In vListIdentPapeis
+                If papel.CD_TITULO <> "" Then
+                    Dim strComando As String = GeraComando(vIdentCot.CD_EMPRESA)
+
+                    If strComando = "-1" Then
+                        Return False
+                    End If
+
+                    vNu_Max_Seq += 1
+
+                    Using comando As New SqlCommand("SP_INCLUI_COTACAO_DIA", conexao)
+                        With comando.Parameters
+                            .Clear()
+                            .AddWithValue("@CD_COTACAO", vIdentCot.CD_COTACAO)
+                            .AddWithValue("@NU_SEQ", vNu_Max_Seq)
+                            .AddWithValue("@NU_SEQ_PERNA", 0)
+                            .AddWithValue("@CD_SISTEMA", vIdentCot.CD_SISTEMA)
+                            .AddWithValue("@CD_SISTEMA_DESTINO", vIdentCot.CD_SISTEMA_DESTINO)
+                            .AddWithValue("@NU_OPERACAO_PROD", strComando)
+                            .AddWithValue("@CD_PRODUTO", vIdentCot.CD_PRODUTO)
+                            .AddWithValue("@CD_TITULO", vListIdentPapeis(y).CD_TITULO) 
+                            .AddWithValue("@CD_AGRUP_PAPEL", DBNull.Value)
+                            .AddWithValue("@CD_PAPEL", vListIdentPapeis(y).Cd_Papel)
+                            .AddWithValue("@DS_PAPEL", vListIdentPapeis(y).Ds_Papel)
+                            .AddWithValue("@NM AGRUP_CARTEIRA", vIdentCot.NM_AGRUP_CARTEIRA)
+                            .AddWithValue("@CD_CLIENTE_GERENCIADO", vIdentCot.CD_CLIENTE_GERENCIADO)
+                            .AddWithValue("@NM_CLIENTE_GERENCIADO", vIdentCot.NP_CLIENTE_GERENCIADO)
+                            .AddWithValue("@CD_PROP_GERENCIAL", vIdentCot.CD_PROP_GERENCIAL)
+                            .AddWithValue("@NM_MESA", vIdentCot.NM_MESA)
+                            .AddWithValue("@NM_PROP_GERENCIAL", vIdentCot.NM_PROP_GERENCIAL)
+                            .AddWithValue("@CD_CLIENTE", vIdentCot.CD_CLIENTE)
+                            .AddWithValue("@NH_CLIENTE", vIdentCot.NM_CLIENTE)
+                            .AddWithValue("@CD_EMISSOR", vIdentCot.CD_EMISSOR)
+                            .AddWithValue("@NM_EMISSOR", 0)
+                            .AddWithValue("@CD_VENDEDOR", vIdentCot.CD_VENDEDOR)
+                            .AddWithValue("@NM_VENDEDOR", vIdentCot.NM_VENDEDOR)
+                            .AddWithValue("@CD_COMPRADOR", vIdentCot.CD_COMPRADOR)
+                            .AddWithValue("@NM_COMPRADOR", vIdentCot.NM_COMPRADOR)
+                            .AddWithValue("@IC_ISENTO", vIdentCot.IC_ISENTO)
+                            .AddWithValue("@CD_TIPO_OPERACAO", vIdentCot.CD_TIPO_OPERACAO)
+                            .AddWithValue("@NM_TIPO_OPERACAO", vIdentCot.NM_TIPO_OPERACAO)
+                            .AddWithValue("@CD_MODALIDADE", vIdentCat.CD_MODALIDADE)
+                            .AddWithValue("@IC_SECUNDARIA", vIdentCot.IC_SECUNDARIA)
+                            .AddwithValue("@CD_COMPOSICAO", vIdentCat.CD_COMPOSICAO)
+                            .AddWithValue("@CD_PROGRAMA", vIdentCot.CD_PROGRAMA) 
+                            .AddWithValue("@NM_PROGRAMA", vIdentCot. NM_PROGRAMA) 
+                            .AddWithValue("@CD_BANCO", vIdentCot.CD_BANCO) 
+                            .AddWithValue("@NU_AGENCIA", vIdentCot.NU_AGENCIA) 
+                            .AddWithValue("@NU_CONTA", vIdentCot.NU_CONTA) 
+                            .AddWithValue("@DT_INICIO", vIdentCot.DT_INICIO)
+                            .AddWithValue("@NU_PRAZO", vIdentCot.NU_PRAZO)
+                            .AddWithValue("@NU_PRAZO_DU", vIdentCot.NU_PRAZO_DU) 
+                            .AddWithValue("@DT_FIM", vIdentCot.DT_FIM) 
+                            .AddWithValue("@DT_ANTECIPACAO", DBNull.Value)
+                            .AddWithValue("@NU_SEQ_ORIG", 0)
+                            .AddWithValue("@CD_MOEDA", vIdentCot.CD_MOEDA)
+
+                            If vListIdentPapeis(y).TipoPrecoUnitario = "PUMERCADO" Then 
+                                .AddWithValue("@VL_PU", (vListIdentPapeis(y).Vl_Pu_Mercado)) 
+                                .AddWithValue("@VL_PU_RESG", (vListIdentPapeis(y).Vl_Pu_Volta)) 
+                                .AddWithValue("@VL_BRUTO", (Trunca(2, vListIdentPapeis(y).Vl_Pu_Volta * vListIdentPapeis(y).QTDE_Utilizada))) 
+                                .AddWithValue("@VL_OPERACAO", (Trunca(2, vListIdentPapeis(y).VL_Pu_Mercado * vListIdentPapeis(y).QTDE_Utilizada)))
+                            Else
+                            .AddWithValue("@VL_PU", (vListIdentPapeis(y).Vl_Pu_550)) 
+                            .AddWithValue("@VL_PU_RESG", (vListIdentPapeis(y).Vl_Pu_Volta)) 
+                            .AddWithValue("@VL_BRUTO", (Trunca(2, viistIdentPapeis(y).Vl_Pu_Volta * vListIdentPapeis(y).QTDE_Utilizada)))
+                            .AddWithValue("@VL_OPERACAO", (Trunca(2, vListIdentPapeis(y).Vl_Pu_550 * vListIdentPapeis(y).QTDE_Utilizada)))
+                            End If
+
+                            .AddWithValue("@VL_OPERACAO_SALDO", 0)
+                            .AddWithValue("@VL_IR", 0) 
+                            .AddWithValue("@VL_IOF", 0)
+                            .AddWithValue("@CD_TIPO_TAXA", vIdentCot.CD_TIPO_TAXA)
+                            .AddWithValue("@VL_TAXA", vIdentCot.VL_TAXA)
+                            .AddWithValue("@VL_TAXA_OVER", vIdentCot.VL_TAXA_OVER)
+                            .AddWithValue("@VL_TAXA_DESAGIO", 0)
+                            .AddWithValue("@VL_TAXA_COMISSAO", 0)
+                            .AddWithValue("@VL_TAXA CUPOM", 0)
+                            .AddWithValue("@VL_RESG_FINANC", 0)
+                            .AddWithValue("@VL_RESG_CONTAB", 0)
+                            .AddWithValue("@NU_QTDE", vListIdentPapeis(y).QTDE_Utilizada)
+                            .AddWithValue("@NU_QTDE_SALDO", DBNull.Value)
+                            .AddWithValue("@NU_CONTA_CETIP", DBNull.Value)
+                            .AddWithValue("@CD_INDEXADOR", vIdentCot.CD_INDEXADOR)
+                            .AddWithValue("@PC_INDEXADOR", vIdentCot.PC_INDEXADOR)
+                            .AddWithValue("@IC_HEDGE", 0)
+                            .AddWithValue("@CD_CUSTODIA", vIdentCot.CD_CUSTODIA)
+                            .AddWithValue("@DS_MOTIVO_CAUCAO", DBNull.Value)
+                            .AddWithValue("@NM_BENEFICIARIO", Framework.Convert.ToDB(vIdentCot.NM_BENEFICIARIO, "")) 
+                            .AddWithValue("@CD_FORMA_LIQUID", vIdentCot.CD_FORMA_LIQUID)
+                            .AddWithValue("ENU_PRAZO_AJUSTE", 0)
+                            .AddWithValue("@NU_CONTA_SELIC", vIdentCot.NU_CONTA_SELIC)
+
+                            Dim sTpEstoque As String = ""
+
+                            If vListIdentPapeis(y).TipoEstoque = "p" Then 
+                                STpEstoque = "PROPRIO"
+                            ElseIf vListIdentPapeis(y).TipoEstoque = "T" Then 
+                                STpEstoque = "TERCEIROS"
+                            ElseIf vListIdentPapeis(y).TipoEstoque = "L" Then 
+                                STpEstoque = "LM"
+                            End If
+
+                            .AddWithValue("@CD_TIPO_ESTOQUE", STpEstoque)
+                            .AddWithValue("@CD_CAIXA", STpEstoque)
+
+                            If STpEstoque = "TERCEIROS" Then
+                                .AddWithValue("@DT_VENCIMENTO_ORIGEM", vListIdentPapeis(y).DT_Vencimento_Operacao)
+                            Else
+                                .AddWithValue("@DT_VENCIMENTO_ORIGEM", vListIdentPapeis(y).DT_Vencimento)
+                            End If
+                            
+
+                            .AddWithValue("@CD_BROKER", 0)
+                            .AddWithValue("@NM_BROKER", DBNull.Value)
+                            .AddWithValue("@NM_PRACA", DBNull.Value)
+                            .AddWithValue("@CD_TIPO_DOLAR", DBNull.Value) 
+                            .AddWithValue("@CD_COTACAO_DOLAR", DBNull.Value) 
+                            .AddWithValue("@CD_OBJETIVO", DBNull.Value)
+                            .AddWithValue("@IC_CLIENTE1", vIdentCot.IC_CLIENTE1) 
+                            .AddWithValue("@IC_CAIXA", 0)
+                            .AddWithValue("@CD_LASTRO_GENERICO", DBNull.Value)
+                            .AddWithValue("@IC_DEB_ESPECIAL", 0)
+                            .AddWithValue("@NU_VINCULO", 0)
+                            .AddWithValue("@NU_VINC_DOC", strComando)
+                            .AddWithValue("@IC_FIM_DOC", 1)
+                            .AddWithValue("@NU_COMANDO", 0)
+                            .AddWithValue("@IC_DISTRIBUIDA", 0)
+                            .AddWithValue("@IC_CONTRATO_ANT", 0)
+                            .AddWithValue("@CD_OPERADOR_COTACAO", vIdentCot.CD_OPERADOR_COTACAO)
+                            .AddWithValue("@CD_OPERADOR_SUP", DBNull.Value)
+                            .AddWithValue("@CD_OPERADOR_ALT", vUsuarioControlM)
+                            .AddWithValue("@CD_STATUS_COTACAO", 1)
+                            .AddWithValue("@DT_INICIO_LIBERACAO", DBNull.Value)
+                            .AddWithValue("@DT_FIM_LIBERACAO", DBNull.Value)
+                            .AddWithValue("@VL_TAXA_252", vIdentCot.VL_TAXA_252) 
+                            .AddWithValue("@VL_TAXA_360", vIdentCot.VL_TAXA_368)
+                            .AddWithValue("@CD_INICIO_OPERACAO", vIdentCot.CD_INICIO_OPERACAO) 
+                            .AddWithValue("@IC_DISPONIVEL", 1)
+                        End With
+
+                        comando.CommandType = CommandType.StoredProcedure
+                        If Convert.ToString(comando.ExecuteScalar()) <> "0" Then
+                            Return False
+                        End If
+                    End Using
+                End If
+            Next
+
+            Return True
+        End Using
+
+    Catch ex As Exception
+        ' Tratar a exceção aqui, se necessário
+        Console.WriteLine("Ocorreu um erro ao alterar a GravaCotacaoDia: " & ex.Message)
+    End Try
+End Function
+
+
+
+
+
+
 '######################################################################################################################################################################
 '######################################################################################################################################################################
 '######################################################################################################################################################################

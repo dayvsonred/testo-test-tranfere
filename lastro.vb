@@ -525,10 +525,108 @@ End Function
 
 
 
+---------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------
 
 
+---------------------------------------------------------------------------------------------------------------------------------
 
 
+Public Function ExecutarLastro(ByVal DataMesa As Date) As Boolean
+    Try
+        Using conexao As New SqlConnection("SuaStringDeConexão")
+            conexao.Open()
+
+            Dim ResultadoSelecionarCotacoes As List(Of Contrato.OperacoesCompromissadas) = vAcessoDados.SelecionarCotacoes(vedanpresta, "", 0, Contrato.TipoOrigemOperacao.Robolastio)
+
+            If ResultadoSelecionarCotacoes.Count = 0 Then
+                Return False
+            End If
+
+            For Each vItemOp As Contrato.OperacoesCompromissadas In ResultadoSelecionarCotacoes
+                Logger.GerarLog("Executando o lastro: " & vItemOp.cd_Cotacao)
+
+                Dim AchouTaxa As Integer = 0
+
+                Dim ResultadoParametrizacaoPapeisLastro As List(Of Contrato.ParametrizacaoPapeisLastro) = vAcessoDados.BuscaParametrizacaoLastro(vCdEmpresa, vItemOp.dt_inicio, vItemOp.CD_OPERADOR_COTACAO)
+
+                If ResultadoParametrizacaoPapeisLastro.Count = 0 Then
+                    AchouTaxa = 4
+                Else
+                    If vItemOp.VL_OPERACAO > ResultadoParanetrizacaoPapeisLastro.Iten(0).VL_FINAMC Then
+                        AchouTaxa = 3
+                    Else
+                        If vItemOp.dt_inicio.ToString("yyyyHidd") = vItenTaxaCompronis.DT_REF Then
+                            AchouTaxa = 2
+                        End If
+                    End If
+                End If
+
+                Select Case AchouTaxa
+                    Case 4
+                        vAcessoDados.GravaLogOpersRobo(vItemOp.cd_Cotacao, 0, "0540D", vItemOp.dt_inicio, vItemOp.DT_FIM,
+                                                        1, vItemOp.vl_taxa, vItemOp.VL_OPERACAO, vItemOp.Cd_Indexador, vItemOp.CD_OPERADOR_COTACAO,
+                                                        "","","","","",
+                                                        "","","","","",
+                                                        "","",
+                                                        "Verificar Paranetrizacao de Papeis para o dia" & vItemOp.dt_inicio & "_" & vItemOp.CD_OPERADOR_COTACAO)
+                    Case 3
+                        vAcessoDados.GravaLogOpersRobo(vItemOp.cd_Cotacao, 0, "0540D", vItemOp.dt_inicio, vItemOp.DT_FIM,
+                                                        1, vItemOp.vl_taxa, vItemOp.VL_OPERACAO, vItemOp.Cd_Indexador, vItemOp.CD_OPERADOR_COTACAO,
+                                                        "","","","","",
+                                                        "","","","","",
+                                                        "","",
+                                                        "Valor da Operacao > Parametrizado Valor Operacao = " & vItemOp.VL_OPERACAO & " - Valor Prametrizacao = VVVV")
+                    Case 0
+                        vAcessoDados.GravaLogOpersRobo(vItemOp.cd_Cotacao, 0, "0540D", vitemOp.dt_inicio, vitemOp.DT_FIM,
+                                                        1, vItemOp.vl_taxa, vItemOp.VL_OPERACAO, vItemOp.Cd_Indexador, vItemOp.CD_OPERADOR_COTACAO,
+                                                        "","","","","",
+                                                        "","","","","",
+                                                        "","",
+                                                        "Tara de Compronissada nâo cadastrada para o dia" & vItemOp.dt_inicio)
+                    Case 1
+                        vAcessoDados.GravaLogOpersRobo(vItemOp.cd_Cotacao, 0, "0540D", vitemOp.dt_inicio, vitemOp.DT_FIM,
+                                                        1, vItemOp.vl_taxa, vItemOp.VL_OPERACAO, vItemOp.Cd_Indexador, vItemOp.CD_OPERADOR_COTACAO,
+                                                        "","","","","",
+                                                        "","","","","",
+                                                        "","",
+                                                        "Valor da taxa " & vItemOp.vl_taxa & " fora do delta permitido ")
+                End Select
+            Next
+            Return True
+        End Using
+    Catch ex As Exception
+        ' Tratamento de exceções, se necessário
+        Return False
+    End Try
+End Function
 
 
 

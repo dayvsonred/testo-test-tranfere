@@ -1,1 +1,7 @@
 text
+
+
+
+Dim variavel As New Contrato.OperacoesCompromissadas()
+
+variavel.nm_empresa = IIf(Not leitor.IsDBNull(leitor.GetOrdinal("nm_empresa")), Convert.ToString(leitor("nm_empresa")), String.Empty)

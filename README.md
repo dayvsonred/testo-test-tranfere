@@ -2773,6 +2773,71 @@ End Sub
 '######################################################################################################################################################################
 '######################################################################################################################################################################
 '######################################################################################################################################################################
+Public Function TitulosParaLastro(ByVal vpIdEstoque As String,
+                                   ByVal vpNmMesa As String,
+                                   ByVal vpCdEmpresa As String,
+                                   ByVal vpdtInicio As Date,
+                                   ByVal vpdtFim As Date,
+                                   Optional ByVal vpCdTitulo As String = "",
+                                   Optional ByVal vpCdCamara As Long = 0,
+                                   Optional ByVal vpAutomatico As Integer = Contrato.FormaLastro.flRobo,
+                                   Optional ByVal vpOrigem As Integer = Contrato.TipoOrigemOperacao.Integrador,
+                                   Optional ByVal vpSistOrigem As String = "") As List(Of Contrato.PapeisUsadosParaLastro)
+
+    Dim vResultado As New List(Of Contrato.PapeisUsadosParaLastro)()
+
+    Try
+        Using conexao As New SqlConnection(Me.Conexao)
+            Dim vComando As New SqlCommand()
+
+            With vComando
+                .Connection = conexao
+                .CommandType = CommandType.StoredProcedure
+                If vpIdEstoque = "T" Then
+                    .CommandText = "SP_MM_SEL TERCEIROS LASTRO_ROBO"
+                ElseIf vpIdEstoque = "p" Then
+                    .CommandText = "SP_MM_SEL PROPRIO LASTRO_ROBO"
+                ElseIf vpIdEstoque = "L" Then
+                    .CommandText = "SP_MM_SEL_LM_LASTRO ROBO"
+                End If
+
+                With .Parameters
+                    .Clear()
+                    .AddWithValue("@NM_MESA", vpNmMesa)
+                    .AddWithValue("@CD_EMPRESA", vpCdEmpresa)
+                    .AddWithValue("@DT_INICIO", vpdtInicio.ToString("yyyyMMdd"))
+                    .AddWithValue("@DT_FIM", vpdtFim.ToString("yyyyMMdd"))
+
+                    If Not String.IsNullOrEmpty(vpCdTitulo) Then
+                        .AddWithValue("@CD_TITULO", vpCdTitulo)
+                    End If
+                    If vpCdCamara <> 0 Then
+                        .AddWithValue("@CD_CAMARA", vpCdCamara)
+                    End If
+                    .AddWithValue("@IC_AUTOMATICO", vpAutomatico)
+                    .AddWithValue("@IC_ORIGEM", vpOrigem)
+                    .AddWithValue("@SIST_ORIGEM", vpSistOrigem)
+                End With
+            End With
+
+            conexao.Open()
+            Using vAdapter As New SqlDataAdapter(vComando)
+                Dim vTabela As New DataTable()
+                vAdapter.Fill(vTabela)
+
+                For Each vLinha As DataRow In vTabela.Rows
+                    vResultado.Add(New Contrato.PapeisUsadosParaLastro(vLinha))
+                Next
+            End Using
+        End Using
+
+    Catch ex As Exception
+        ' Lidar com a exceção, se necessário
+        ' Por exemplo: Logger.LogError(ex.Message)
+    End Try
+
+    Return vResultado
+End Function
 
 
 

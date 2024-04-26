@@ -2840,6 +2840,91 @@ Public Function TitulosParaLastro(ByVal vpIdEstoque As String,
 End Function
 
 
+*****************************************************************************************************************************************************************
+
+
+
+Public Function VerificaEstoqueDisponivel(ByVal vpDataMesa As Date,
+                                          ByVal vIdentCot As Contrato.IdentificarCotacao,
+                                          ByVal vListIdentPapeis As List(Of Contrato.PapeisUsadosParaLastro)) As Boolean
+
+    Try
+        For Each papeis As Contrato.PapeisUsadosParaLastro In vListIdentPapeis
+            If Not String.IsNullOrEmpty(papeis.CD_TITULO) Then
+                Using conexao As New SqlConnection(Me.Conexao)
+                    Dim Comando As New SqlCommand With {
+                        .Connection = conexao,
+                        .CommandType = CommandType.StoredProcedure
+                    }
+
+                    With Comando.Parameters
+                        .Clear()
+                        .AddWithValue("@codCamara", vIdentCot.CD_CAMARA)
+                        .AddWithValue("@nm_mesa", vIdentCot.NPRESA)
+                        .AddWithValue("@codEmp", vIdentCot.CD_EMPRESA)
+
+                        If papeis.TipoEstoque = "T" Then
+                            .AddWithValue("@codCai", "TERCEIROS")
+                            .AddWithValue("@dtVenOrg", papeis.DT_Vencimento_Operacao.ToString("yyyyMMdd"))
+                        ElseIf papeis.TipoEstoque = "P" Then
+                            .AddWithValue("@codCai", "PROPRIO")
+                            .AddWithValue("@dtVenOrg", papeis.DT_Vencimento.ToString("yyyyMMdd"))
+                        ElseIf papeis.TipoEstoque = "L" Then
+                            .AddWithValue("@codCai", "LM")
+                            .AddWithValue("@dtVenOrg", papeis.DT_Vencimento.ToString("yyyyMMdd"))
+                        End If
+
+                        .AddWithValue("@papel", papeis.Cd_Papel)
+                        .AddWithValue("@dtIni", vIdentCot.DT_INICIO.ToString("yyyyMMdd"))
+                        .AddWithValue("@dtVen", vIdentCot.DT_FIM.ToString("yyyyMMdd"))
+
+                        .AddWithValue("@qtd", papeis.QTDE_Utilizada + papeis.QTDE_RESERVADA)
+                        .AddWithValue("@dtJor", vpDataMesa.ToString("yyyyMMdd"))
+                        .AddWithValue("@codEtq", papeis.Cd_ETQ)
+
+                        If vIdentCot.CD_INDEXADOR = "PRE" AndAlso vIdentCot.NU_PRAZO_DU = 1 Then
+                            Dim sDtVencto As Date = CDate(papeis.DT_Vencimento)
+                            Dim sprxVenctoPapel As Date
+
+                            If Not Datas.DiaUtil(sDtVencto) Then
+                                sDtVencto = Datas.ObterProximoDiaUtil(sDtVencto)
+                                .AddWithValue("@DiaUtil", 1)
+                                .AddWithValue("@PrxDtVenOrg", sDtVencto.ToString("yyyyMMdd"))
+                            Else
+                                sprxVenctoPapel = sDtVencto
+                                .AddWithValue("@DiaUtil", 0)
+                            End If
+                        Else
+                            .AddWithValue("@DiaUtil", 0)
+                        End If
+                    End With
+
+                    If papeis.TipoEstoque = "L" Then
+                        Comando.CommandText = "SP_MM_VERIFICA_QTD_ESTOQUE_LM"
+                    Else
+                        Comando.CommandText = "SP_MM_VERIFICA_QTD_ESTOQUE_PROPRIO"
+                    End If
+
+                    conexao.Open()
+                    Dim Retorna As String = Comando.ExecuteScalar().ToString()
+
+                    If Retorna <> "0" Then
+                        Return False
+                    End If
+                End Using
+            End If
+        Next
+
+        Return True
+
+    Catch ex As Exception
+        ' Lidar com a exceção, se necessário
+        ' Por exemplo: Logger.LogError(ex.Message)
+        Return False
+    Finally
+        Me.FecharConexao()
+    End Try
+End Function
 
 
 
